@@ -30,7 +30,7 @@ const AddVehicle: React.FC<AddVehicleProps> = ({ value, setValue }) => {
       type: "textarea",
       placeHolder: "Enter Vehicle Description",
     },
-    { name: "type", label: "Vehicle Type", type: "select", options: ["LTV", "HTV"] },
+    { name: "vehicleType", label: "Vehicle Type", type: "select", options: ["LTV", "HTV"] },
     { name: "status", label: "Status", type: "select", options: ["Active", "Inactive"] },
   ];
 

@@ -1,9 +1,10 @@
 export interface Vehicle {
+  type:"vehicle",
   id: string | number;
   vehicleName: string;
   vehicleModel: string;
   vehicleYear: string;
-  type: string;
+  vehicleType: string;
   chassiNumber: string;
   registrationNumber: string;
   vehicleDescription: string;

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, Paper } from "@mui/material";
 import StorageService from "../Service/StorageService";
-import { GETALLAPI, GETALLVEHICLES } from "../Service/APIService";
+import { DELETE, DELETEVEHICLE, GETALLAPI, GETALLVEHICLES } from "../Service/APIService";
 import AppTable from "../Components/UI/Apptable";
 import StatsCard from "../Components/UI/StatsCard";
 import type { Manager } from "../Manager/types-m";
@@ -10,6 +10,7 @@ import type { Driver } from "../Driver/types-d";
 import type { Vehicle } from "../Vehicle/types-v";
 
 type User = {
+  type: "user",
   id: number;
   firstName: string;
   lastName: string;
@@ -43,17 +44,12 @@ const Dashboard = () => {
         const userRes = await GETALLAPI({ url: "/list" });
         if (Array.isArray(userRes.data)) {
           const allUsers = userRes.data;
-          const managers = allUsers.filter((user: Manager) => user.role === "manager");
-          const drivers = allUsers.filter((user: Driver) => user.role === "driver");
+          const managers = allUsers.filter((user: Manager) => user.role == "manager");
+          const drivers = allUsers.filter((user: Driver) => user.role == "driver");
+          setUsers(allUsers);
+          setManangers(managers);
+          setDrivers(drivers);
 
-          if (rl == "admin") {
-            setUsers(allUsers);
-            setManangers(managers);
-            setDrivers(drivers);
-          } else if (rl == "manager") {
-            console.log(("manager running"));
-            setDrivers(drivers);
-          }
         }
       }
 
@@ -67,13 +63,55 @@ const Dashboard = () => {
     }
   };
 
+
+  // for checking the object is user
+  function isUser(obj: any): obj is User {
+    return 'email' in obj && 'role' in obj && 'firstName' in obj;
+  }
+  // for checking the object is vehicle
+  function isVehicle(obj: any): obj is Vehicle {
+    return 'vehicleName' in obj && 'vehicleModel' in obj;
+  }
+  const handleEdit = (r) => {
+    if (isUser(r)) {
+      console.log("user edit logic ");
+    }
+    else if (isVehicle(r)) {
+      console.log("vehicle edit logic");
+    }
+  }
+
+  const handleDelete = async (r) => {
+      await DELETE({ url: `/delete/${r?._id}` })
+        .then((res) => {
+          console.log("user deleted:" + res);
+          fetchedData(role);
+        })
+        .catch((err) => console.log("delete api error :" + err));
+   
+    }
+  }
   const userColumns = [
     { name: "firstName", label: "First Name" },
     { name: "lastName", label: "Last Name" },
     { name: "email", label: "Email" },
     { name: "mobile", label: "Mobile" },
     { name: "role", label: "Role" },
+    { name: "actions", label: "Actions" }
   ];
+
+  const rowActions = [
+    {
+      label: 'Edit',
+      color: 'primary',
+      onClick: (r) => handleEdit(r),
+    },
+    {
+      label: 'Delete',
+      color: 'error',
+      onClick: (r) => handleDelete(r),
+    },
+  ]
 
   const driversColumns = [
     { name: "firstName", label: "First Name" },
@@ -81,6 +119,7 @@ const Dashboard = () => {
     { name: "email", label: "Email" },
     { name: "mobile", label: "Mobile" },
     { name: "role", label: "Role" },
+    { name: "actions", label: "Actions" }
   ];
 
   const vehiclesColumns = [
@@ -138,8 +177,11 @@ const Dashboard = () => {
             <Grid item xs={12} sm={6} md={6}>
               <StatsCard title="Total Drivers" value={drivers.length} onClick={handleButton} bg={cardThemes[2].color} />
             </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <StatsCard title="Total Managers" value={manangers.length} onClick={handleButton} bg={cardThemes[1].color} />
+            </Grid>
             <Grid item xs={12} sm={6} md={6}>
-              <StatsCard title="Assigned Vehicles" value={vehicles.length} onClick={handleButton} bg={cardThemes[4].color} />
+              <StatsCard title="Total Vehicles" value={vehicles.length} onClick={handleButton} bg={cardThemes[4].color} />
             </Grid>
           </>
         )}
@@ -159,7 +201,7 @@ const Dashboard = () => {
       {/* Tables */}
       {role === "admin" && (
         <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-          <AppTable rowData={users} headerColumn={userColumns} title="User List" headerActions={[]} />
+          <AppTable rowData={users} rowActions={rowActions} headerColumn={userColumns} title="User List" headerActions={[]} />
         </Paper>
       )}
 
@@ -171,7 +213,7 @@ const Dashboard = () => {
 
       {role === "driver" && (
         <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-          <AppTable rowData={vehicles} headerColumn={vehiclesColumns} title="Your Vehicles" headerActions={[]} />
+          <AppTable rowData={vehicles}  headerColumn={vehiclesColumns} title="Your Vehicles" headerActions={[]} />
         </Paper>
       )}
 

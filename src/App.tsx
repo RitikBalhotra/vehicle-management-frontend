@@ -8,6 +8,7 @@ import MyProfile from './Components/UI/MyProfile'
 import Vehicles from './Vehicle/Vehicles'
 import Managers from './Manager/Managers'
 import Drivers from './Driver/Drivers'
+import PageNotFound from './PageNotFound'
 
 function App() {
 
@@ -19,7 +20,7 @@ function App() {
         <Route path="myprofile" element={<MyProfile />} />
 
         {/* Admin Routes */}
-        <Route path="admin/dashboard" element={<Dashboard/>} />
+        <Route path="admin/dashboard" element={<Dashboard />} />
         <Route path="admin/vehicles" element={<Vehicles />} />
         <Route path="admin/managers" element={<Managers />} />
         <Route path="admin/drivers" element={<Drivers />} />
@@ -31,7 +32,11 @@ function App() {
 
         {/* Driver Routes */}
         <Route path="driver/dashboard" element={<Dashboard />} />
+
+
+
       </Route>
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
 
   )

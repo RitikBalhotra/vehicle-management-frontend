@@ -4,30 +4,30 @@ import StorageService from '../Service/StorageService'; // Adjust the path if ne
 const baseUrl = 'http://localhost:3020/api';
 
 interface GetApiParams {
-    url: string;
-    header?: Record<string, string>;
-    payload?: Record<string, string>;
+  url: string;
+  header?: Record<string, string>;
+  payload?: Record<string, string>;
 }
 
 // signup function
-export const POSTAPI = ({ url, payload = {}, header={} }: GetApiParams) => {
-    return axios
-        .post(baseUrl + url, payload, header)
-        .then((res) => res.data)
-        .catch((err) => console.log("POST API ERROR" + err));   
+export const POSTAPI = ({ url, payload = {}, header = {} }: GetApiParams) => {
+  return axios
+    .post(baseUrl + url, payload, header)
+    .then((res) => res.data)
+    .catch((err) => console.log("POST API ERROR" + err));
 };
 
 // login function 
 export const LOGINAPI = ({ url, payload = {}, header = {} }: GetApiParams) => {
-    return axios
-        .post(baseUrl + url, payload, header)
-        .then((res) => res.data)
-        .catch((err) => console.log(err));
+  return axios
+    .post(baseUrl + url, payload, header)
+    .then((res) => res.data)
+    .catch((err) => console.log(err));
 };
 
 // get all users
-export const GETALLAPI =({url, header={} }:GetApiParams)=>{
-    try {
+export const GETALLAPI = ({ url, header = {} }: GetApiParams) => {
+  try {
     return axios.get(baseUrl + url, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -52,29 +52,53 @@ export const GETBYID = ({ url, }: GetApiParams) => {
     .catch((err) => console.log(err));
 };
 
-
-// add vehicle
-export const POSTVEHICLE =({url,payload={}, header={}}:GetApiParams)=>{
+// Delete user by id 
+export const DELETE = ({ url, }: GetApiParams) => {
   return axios
-    .post(baseUrl + url , payload, header)
-    .then((res)=> res.data)
-    .catch((err)=> console.log("Post API Error"+ err))
+    .delete(baseUrl + url, {
+      headers: {
+        Authorization: `Bearer ${StorageService.getToken()}`
+      }
+    })
+    .then((res) => res.data)
+    .catch((err) => console.log(err))
 }
 
+// -------------------------vehicle routers------------------------------
+
+// add vehicle
+export const POSTVEHICLE = ({ url, payload = {}, header = {} }: GetApiParams) => {
+  return axios
+    .post(baseUrl + url, payload, header)
+    .then((res) => res.data)
+    .catch((err) => console.log("Post API Error" + err))
+}
 
 // get all vehicles
-export const GETALLVEHICLES =({url, header={}}:GetApiParams)=>{
-  try{
-    return axios.get(baseUrl+url,{
-      headers:{
+export const GETALLVEHICLES = ({ url, header = {} }: GetApiParams) => {
+  try {
+    return axios.get(baseUrl + url, {
+      headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
         ...header,
       },
     })
   }
-  catch(error){
-    console.log('Get all Vehicle: '+ error)
-    throw  error;
+  catch (error) {
+    console.log('Get all Vehicle: ' + error)
+    throw error;
   }
 
+}
+
+// Delete user by id 
+export const DELETEVEHICLE = ({ url, }: GetApiParams) => {
+  return axios
+    .delete(baseUrl + url, {
+      headers: {
+        Authorization: `Bearer ${StorageService.getToken()}`
+      }
+    })
+    .then((res) => res.data)
+    .catch((err) => console.log(err))
 }

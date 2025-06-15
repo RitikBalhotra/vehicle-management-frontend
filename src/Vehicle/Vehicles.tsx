@@ -12,7 +12,7 @@ const defaultForm: VehicleForm = {
     vehicleName: "",
     vehicleModel: "",
     vehicleYear: "",
-    type: "",
+    vehicleType: "",
     chassiNumber: "",
     registrationNumber: "",
     vehicleDescription: "",
@@ -28,7 +28,7 @@ const Vehicles = () => {
         { name: "vehicleName", label: "Vehicle Name" },
         { name: "vehicleModel", label: "Model" },
         { name: "vehicleYear", label: "Year" },
-        { name: "type", label: "Vehicle Type" },
+        { name: "Vehicle Type", label: "Vehicle Type" },
         { name: "chassiNumber", label: "Chassi Number" },
         { name: "Actions", label: "Actions" }
     ];
@@ -54,7 +54,7 @@ const Vehicles = () => {
             vehicleName,
             vehicleModel,
             vehicleYear,
-            type,
+            vehicleType,
             chassiNumber,
             registrationNumber,
             vehicleDescription,
@@ -65,7 +65,7 @@ const Vehicles = () => {
             !vehicleName ||
             !vehicleModel ||
             !vehicleYear ||
-            !type ||
+            !vehicleType ||
             !chassiNumber ||
             !registrationNumber ||
             !vehicleDescription ||
@@ -75,12 +75,19 @@ const Vehicles = () => {
         }
 
         try {
+            console.log(formData);
             const res = await POSTVEHICLE({ url: "/add", payload: formData });
             console.log(res);
-            alert("Vehicle added successfully!");
-            setOpen(false);
-            setFormData(defaultForm);
-            fetchVehicles();
+            if (res) {
+                alert("Vehicle added successfully!");
+                setOpen(false);
+                setFormData(defaultForm);
+                fetchVehicles();
+            }
+            else{
+                console.log("response is not coming so vehicle is not addded and data not fetched");
+            }
+
         } catch (err) {
             alert("Vehicle not added. Try again.");
             console.error("Error adding vehicle:", err);

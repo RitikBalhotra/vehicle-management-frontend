@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import backgroundImage from '../images/bg2.jpg';
+import backgroundImage from '../images/login-bg.png';
 import APPTextField from '../Components/UI/AppTextField';
 import { LOGINAPI, POSTAPI } from '../Service/APIService';
 import StorageService from '../Service/StorageService';
@@ -50,7 +50,17 @@ const LoginPage = () => {
       const response = await POSTAPI({ url: '/register', payload: user });
       StorageService.setToken(response.token);
       StorageService.setUser(response.user);
-      navigate('/login');
+      alert("signUp successfully!")
+      setUser({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        mobile: '',
+        dob: '',
+        role: '',
+      })
+      setMode("login")
     } catch (err) {
       alert('Signup failed. Please try again.');
       console.error(err);
@@ -77,18 +87,18 @@ const LoginPage = () => {
 
   const formFields = mode === 'signup'
     ? [
-        { name: 'firstName', label: 'First Name', placeholder: 'Enter First Name' },
-        { name: 'lastName', label: 'Last Name', placeholder: 'Enter Last Name' },
-        { name: 'email', label: 'Email', placeholder: 'Enter email' },
-        { name: 'mobile', label: 'Mobile', placeholder: 'Enter Mobile no' },
-        { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter password' },
-        { name: 'dob', label: 'Date of Birth', type: 'date' },
-        { name: 'role', label: 'Select Role', type: 'select', options: ['admin', 'manager', 'driver'] },
-      ]
+      { name: 'firstName', label: 'First Name', placeholder: 'Enter First Name' },
+      { name: 'lastName', label: 'Last Name', placeholder: 'Enter Last Name' },
+      { name: 'email', label: 'Email', placeholder: 'Enter email' },
+      { name: 'mobile', label: 'Mobile', placeholder: 'Enter Mobile no' },
+      { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter password' },
+      { name: 'dob', label: 'Date of Birth', type: 'date' },
+      { name: 'role', label: 'Select Role', type: 'select', options: ['admin', 'manager', 'driver'] },
+    ]
     : [
-        { name: 'email', label: 'Email', placeholder: 'Enter your email' },
-        { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter password' },
-      ];
+      { name: 'email', label: 'Email', placeholder: 'Enter your email' },
+      { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter password' },
+    ];
 
   return (
     <Box
@@ -122,7 +132,7 @@ const LoginPage = () => {
         </Typography>
         <Box
           component="img"
-          src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+          src={backgroundImage}
           alt="illustration"
           sx={{ width: '100%', maxWidth: 400 }}
         />
