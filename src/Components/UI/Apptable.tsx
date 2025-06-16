@@ -114,7 +114,7 @@ const AppTable: React.FC<AppTableProps> = ({
               <TableRow key={row.id || `row-${index}`}>
                 {headerColumn.map((column) => (
                   <TableCell key={`${row.id || index}-${column.name}`} align="left">
-                    {column.name === 'actions' ? (
+                    {column.name.toLowerCase() === 'actions' ? (
                       <Box display="flex" gap={1}>
                         {rowActions.map((action, idx) => (
                           <AppButton
@@ -126,10 +126,17 @@ const AppTable: React.FC<AppTableProps> = ({
                           />
                         ))}
                       </Box>
+                    ) : column.name === 'profilePic' ? (
+                      <img
+                        src={String(row[column.name])}
+                        alt="Profile"
+                        style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                      />
                     ) : (
-                      row[column.name]
+                      row[column.name] ?? "-"
                     )}
                   </TableCell>
+
                 ))}
               </TableRow>
             ))}

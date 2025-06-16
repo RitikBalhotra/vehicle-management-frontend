@@ -28,7 +28,7 @@ function App() {
         {/* Manager Routes */}
         <Route path="manager/dashboard" element={<Dashboard />} />
         <Route path="manager/vehicles" element={<Vehicles />} />
-        {/* <Route path="manager/drivers" element={<Drivers />} /> */}
+        <Route path="manager/drivers" element={<Drivers />} />
 
         {/* Driver Routes */}
         <Route path="driver/dashboard" element={<Dashboard />} />

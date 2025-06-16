@@ -3,195 +3,130 @@ import {
   AppBar,
   Box,
   CssBaseline,
-  Divider,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Toolbar,
-  Typography,
   Button,
+  Avatar,
+  Menu,
+  MenuItem,
+  IconButton,
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  // Logout as LogoutIcon,
-} from '@mui/icons-material';
 import { useNavigate, Outlet } from 'react-router-dom';
 import StorageService from '../../Service/StorageService';
+import logo from '../../images/logo.png';
+import { GETBYID } from '../../Service/APIService';
 
 const drawerWidth = 240;
 
 const Layout: React.FC = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [islogin, setIsLogin] = useState("false");
-  const [role, setRole] = useState("")
-  const [barButton, setbarButton] = useState<string[]>([])
+  const [isLogin, setIsLogin] = useState(false);
+  const [role, setRole] = useState('');
+  const [navButtons, setNavButtons] = useState<string[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  interface LoginUser {
+    id?: string;
+    profilePic?: string;
+    // add other properties as needed
+  }
+  const [loginUser, setLoginUser] = useState<LoginUser>({})
   const navigate = useNavigate();
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const user = StorageService.getUser();
+  const open = Boolean(anchorEl);
 
-  //Handle login and logout 
-  const checkUser = () => {
-    const user = StorageService.getUser();
-    setRole(user.role)
-    if (user !== null) {
-      setIsLogin("true");
+  useEffect(() => {
+    findUser();
+    if (user) {
+      setIsLogin(true);
+      setRole(user.role);
       if (user.role == 'admin') {
-        const btns = ["Dashboard","Managers", "Vehicles", "Drivers"];
-        setbarButton(btns)
-      }
-      else if (user.role == 'manager') {
-        const btns = ["Vehicles", "Drivers"];
-        setbarButton(btns)
-      }
-      else if (user.role == 'driver') {
-        setbarButton([])
+        setNavButtons(['Dashboard', 'Managers', 'Vehicles', 'Drivers']);
+      } else if (user.role == 'manager') {
+        setNavButtons(['Dashboard', 'Vehicles', 'Drivers']);
+      } else {
+        setNavButtons(['Dashboard']);
       }
     }
-    else {
-      setIsLogin("false");
+  }, []);
+
+  const findUser= async()=>{
+    try{
+        const res = await GETBYID ({url: `/user/${user.id}`})
+        setLoginUser(res)
+    }
+    catch{
+      console.log("GETBYID is not working");
     }
   }
 
-  useEffect(() => {
-    checkUser()
-  }, [])
+  const handleNavigation = (label: string) => {
+    const path = label.toLowerCase();
+    if (path === 'managers') {
+      navigate('/admin/managers');
+    } else {
+      navigate(`/${role}/${path}`);
+    }
+  };
 
-  // handle logout
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
   };
 
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-  // handle profile
-  const handleProfile = () => {
-    navigate("/myprofile")
-  }
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
-
-  // handle Bar 
-  const handleBar = (btn: string) => {
-    switch (btn.toLowerCase()) {
-      case "dashboard":
-        navigate(`${role}/dashboard`);
-        break;
-      case "managers":
-        navigate("/admin/managers");
-        break;
-      case "vehicles":
-        navigate(`${role}/vehicles`);
-        break;
-      case "drivers":
-        navigate(`${role}/drivers`);
-        break;
-
-    }
-
-  }
-
-
-  const drawer = (
-    <div>
-      <Toolbar>
-        <Typography variant="h6">Admin Panel</Typography>
-      </Toolbar>
-      <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate(`/${role}dashboard`)}>
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary={`${role} Dashboard`} />
-          </ListItemButton>
-        </ListItem>
-        {/* Add more menu items as needed */}
-      </List>
-    </div>
-  );
+  const handleMenuSelect = (path: string) => {
+    navigate(`/${path}`);
+    handleMenuClose();
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
 
-      {/* AppBar */}
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            VMS
-          </Typography>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          <Box component="img" src={logo} alt="Logo" sx={{ height: 60, ml: 1 }} />
 
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {navButtons.map((btn) => (
+              <Button key={btn} color="inherit" onClick={() => handleNavigation(btn)}>
+                {btn}
+              </Button>
+            ))}
 
-          {barButton.map((btn) => {
-            return <Button key={btn} color="inherit" onClick={() => handleBar(btn)}>
-              {btn}
+            {/* Profile Avatar Dropdown */}
+            <IconButton onClick={handleAvatarClick} size="small" sx={{ ml: 1 }}>
+              <Avatar
+                alt="Profile"
+                src={loginUser.profilePic||''}
+                sx={{ width: 40, height: 40 }}
+              />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleMenuClose}
+              onClick={handleMenuClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={() => handleMenuSelect('myprofile')}>My Profile</MenuItem>
+              <MenuItem onClick={() => handleMenuSelect('changepassword')}>Change Password</MenuItem>
+            </Menu>
+
+            <Button color="inherit" onClick={handleLogout}>
+              {isLogin ? 'Logout' : 'Login'}
             </Button>
-          })}
-          <Button color="inherit" onClick={handleProfile}>
-            My Profile
-          </Button>
-          <Button color="inherit" onClick={handleProfile}>
-            Change Password
-          </Button>
-          <Button color="inherit" onClick={handleLogout}>
-            {islogin ? "Logout" : "Login"}
-          </Button>
+          </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Drawer
-      {
-        role == 'admin' ?
-          <Box
-            component="nav"
-            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-            aria-label="sidebar"
-          >
-            <Drawer
-              variant="temporary"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-              ModalProps={{ keepMounted: true }}
-              sx={{
-                display: { xs: 'block', sm: 'none' },
-                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-              }}
-            >
-              {drawer}
-            </Drawer>
-
-            <Drawer
-              variant="permanent"
-              sx={{
-                display: { xs: 'none', sm: 'block' },
-                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-              }}
-              open
-            >
-              {drawer}
-            </Drawer>
-          </Box> :
-          null
-
-      } */}
-
-
-      {/* Main Content */}
       <Box
         component="main"
         sx={{

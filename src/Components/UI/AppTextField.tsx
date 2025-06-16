@@ -1,4 +1,4 @@
-import {TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import React from 'react';
 
 interface APPTextFieldProps {
@@ -9,7 +9,8 @@ interface APPTextFieldProps {
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   placeholder?: string;
   isreq?: boolean;
-   options?: string[];
+   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  options?: string[];
 }
 
 const APPTextField: React.FC<APPTextFieldProps> = ({ type, name, value, onChange, placeholder, isreq, options }) => {
@@ -22,7 +23,7 @@ const APPTextField: React.FC<APPTextFieldProps> = ({ type, name, value, onChange
       placeholder={placeholder}
       required={isreq}
       fullWidth
-      sx={{marginBottom:2}}
+      sx={{ marginBottom: 2 }}
       select={!!options}
     >
       {options && options.map((option) => (

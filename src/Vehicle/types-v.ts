@@ -9,7 +9,7 @@ export interface Vehicle {
   registrationNumber: string;
   vehicleDescription: string;
   status: string;
-  [key: string]: string | number;
+  vehiclePhotos?: (File | string)[];
 }
 
 export type VehicleForm = Omit<Vehicle, "id">;

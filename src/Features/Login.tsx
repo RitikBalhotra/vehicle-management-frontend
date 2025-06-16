@@ -25,96 +25,109 @@ const LoginPage = () => {
     mobile: '',
     dob: '',
     role: '',
+    experience: '',
+    address: '',
+    licenseExpiryDate: '',
+    vehicleAssigned: '',
   });
 
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
-  });
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
 
+
+  // handle change 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (mode === 'signup') {
-      setUser((prev) => ({ ...prev, [name]: value }));
+      setUser(prev => ({ ...prev, [name]: value }));
     } else {
-      setLoginData((prev) => ({ ...prev, [name]: value }));
+      setLoginData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleSignUp = async () => {
-    const { firstName, lastName, dob, role, email, mobile, password } = user;
-    if (!firstName || !lastName || !dob || !role || !email || !mobile || !password) {
-      return alert('Please fill all fields');
-    }
-    try {
-      const response = await POSTAPI({ url: '/register', payload: user });
-      StorageService.setToken(response.token);
-      StorageService.setUser(response.user);
-      alert("signUp successfully!")
-      setUser({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        mobile: '',
-        dob: '',
-        role: '',
-      })
-      setMode("login")
-    } catch (err) {
-      alert('Signup failed. Please try again.');
-      console.error(err);
-    }
-  };
-
+  
+  // handle login 
   const handleLogin = async () => {
     const { email, password } = loginData;
-    if (!email || !password) {
-      return alert('Please fill all fields');
-    }
+    if (!email || !password) return alert('Email and password are required');
+
     try {
-      const response = await LOGINAPI({ url: '/login', payload: loginData });
-      StorageService.setToken(response.token);
-      StorageService.setUser(response.user);
-      if (response.user.role === 'admin') navigate('/admin/dashboard');
-      else if (response.user.role === 'manager') navigate('/manager/dashboard');
-      else navigate('/driver/dashboard');
-    } catch (err) {
-      alert('Invalid email or password');
-      console.error(err);
+      const res = await LOGINAPI({ url: '/login', payload: loginData });
+      StorageService.setToken(res.token);
+      StorageService.setUser(res.user);
+
+      // Navigate using full role string, not role[0]
+      navigate(`/${res.user.role}/dashboard`);
+    } catch (err: any) {
+      alert(`Login failed: ${err.message}`);
     }
   };
+
+
+  // handle signup
+  const handleSignUp = async () => {
+    if (!user.role) {
+      alert("Please select a role");
+      return;
+    }
+
+    const payload: Record<string, any> = {
+      ...user,
+      profileImage,
+      licenseFile,
+    };
+
+    try {
+      const response = await POSTAPI({
+        url: "/register",
+        payload,
+      });
+
+      console.log("✅ Register success:", response);
+      alert("User registered successfully!");
+      setMode("login"); // switch to login after success
+    } catch (error: any) {
+      console.error("❌ Register failed:", error.message || error);
+      alert("Registration failed: " + (error.message || "Unknown error"));
+    }
+  };
+
 
   const formFields = mode === 'signup'
     ? [
-      { name: 'firstName', label: 'First Name', placeholder: 'Enter First Name' },
-      { name: 'lastName', label: 'Last Name', placeholder: 'Enter Last Name' },
-      { name: 'email', label: 'Email', placeholder: 'Enter email' },
-      { name: 'mobile', label: 'Mobile', placeholder: 'Enter Mobile no' },
-      { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter password' },
+      { name: 'firstName', label: 'First Name' },
+      { name: 'lastName', label: 'Last Name' },
+      { name: 'email', label: 'Email' },
+      { name: 'mobile', label: 'Mobile' },
+      { name: 'password', label: 'Password', type: 'password' },
       { name: 'dob', label: 'Date of Birth', type: 'date' },
-      { name: 'role', label: 'Select Role', type: 'select', options: ['admin', 'manager', 'driver'] },
+      { name: 'role', label: 'Role', type: 'select', options: ['admin', 'manager', 'driver'] },
+      ...(user.role === 'driver'
+        ? [
+          { name: 'experience', label: 'Experience (yrs)' },
+          { name: 'address', label: 'Address' },
+          { name: 'licenseExpiryDate', label: 'License Expiry', type: 'date' },
+        ]
+        : []),
     ]
     : [
-      { name: 'email', label: 'Email', placeholder: 'Enter your email' },
-      { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter password' },
+      { name: 'email', label: 'Email' },
+      { name: 'password', label: 'Password', type: 'password' },
     ];
 
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        width: '100%',
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
         backgroundColor: '#f5f5f5',
       }}
     >
-      {/* Left Section */}
       <Box
         sx={{
           flex: 1,
-          bgcolor: '#f8f9fa',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -138,7 +151,6 @@ const LoginPage = () => {
         />
       </Box>
 
-      {/* Right Section (Form) */}
       <Box
         sx={{
           flex: 1,
@@ -149,18 +161,25 @@ const LoginPage = () => {
         }}
       >
         <Paper elevation={6} sx={{ width: '100%', maxWidth: 450, p: 4, borderRadius: 3 }}>
-          <Typography variant="h5" fontWeight={700} mb={2} textAlign="center" color="primary">
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            mb={2}
+            textAlign="center"
+            color="primary"
+          >
             {mode === 'login' ? 'Login' : 'Sign Up'}
           </Typography>
 
           <Stack spacing={2}>
-            {formFields.map((field) => (
+            {formFields.map(field => (
               <Box key={field.name}>
                 <Typography variant="body2" fontWeight={600} mb={0.5}>
                   {field.label}
                 </Typography>
                 {field.type === 'select' ? (
                   <TextField
+                    required
                     select
                     fullWidth
                     name={field.name}
@@ -169,17 +188,17 @@ const LoginPage = () => {
                     SelectProps={{ native: true }}
                   >
                     <option value="">Select a role</option>
-                    {field.options?.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
+                    {field.options?.map(opt => (
+                      <option key={opt} value={opt}>
+                        {opt}
                       </option>
                     ))}
                   </TextField>
                 ) : (
                   <APPTextField
                     name={field.name}
-                    placeholder={field.placeholder}
                     type={field.type || 'text'}
+                    placeholder={`Enter ${field.label}`}
                     onChange={handleChange}
                     value={
                       mode === 'signup'
@@ -191,10 +210,42 @@ const LoginPage = () => {
               </Box>
             ))}
 
+            {mode === 'signup' && (
+              <>
+                <Typography variant="body2" fontWeight={600}>
+                  Upload Profile Image
+                </Typography>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setProfileImage(e.target.files?.[0] ?? null)}
+                />
+
+                {user.role === 'driver' && (
+                  <>
+                    <Typography variant="body2" fontWeight={600}>
+                      Upload License Document
+                    </Typography>
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      onChange={e => setLicenseFile(e.target.files?.[0] ?? null)}
+                    />
+                  </>
+                )}
+              </>
+            )}
+
             <Button
               variant="contained"
               fullWidth
-              onClick={mode === 'login' ? handleLogin : handleSignUp}
+              onClick={() => {
+                if (mode === 'login') {
+                  handleLogin();
+                } else {
+                  handleSignUp();
+                }
+              }}
               sx={{ py: 1.3, fontWeight: 'bold', borderRadius: 20 }}
             >
               {mode === 'login' ? 'Login' : 'Register'}

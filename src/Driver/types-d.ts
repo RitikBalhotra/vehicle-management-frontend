@@ -6,7 +6,7 @@ export interface Driver {
     password: '',
     mobile: '',
     dob: '',
-    role: '';
+    role:  'driver';
     [key : string]: string | number;
 }
 
