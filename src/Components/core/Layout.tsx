@@ -38,13 +38,6 @@ const Layout: React.FC = () => {
     if (user) {
       setIsLogin(true);
       setRole(user.role);
-      if (user.role == 'admin') {
-        setNavButtons(['Dashboard', 'Managers', 'Vehicles', 'Drivers']);
-      } else if (user.role == 'manager') {
-        setNavButtons(['Dashboard', 'Vehicles', 'Drivers']);
-      } else {
-        setNavButtons(['Dashboard']);
-      }
     }
   }, []);
 
@@ -58,14 +51,6 @@ const Layout: React.FC = () => {
     }
   }
 
-  const handleNavigation = (label: string) => {
-    const path = label.toLowerCase();
-    if (path === 'managers') {
-      navigate('/admin/managers');
-    } else {
-      navigate(`/${role}/${path}`);
-    }
-  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -80,6 +65,10 @@ const Layout: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const handleLogo =()=>{
+    navigate("/dashboard")
+  }
+
   const handleMenuSelect = (path: string) => {
     navigate(`/${path}`);
     handleMenuClose();
@@ -91,15 +80,10 @@ const Layout: React.FC = () => {
 
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Box component="img" src={logo} alt="Logo" sx={{ height: 60, ml: 1 }} />
+          <Box component="img" onClick={handleLogo} src={logo} alt="Logo" sx={{ height: 80, ml: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {navButtons.map((btn) => (
-              <Button key={btn} color="inherit" onClick={() => handleNavigation(btn)}>
-                {btn}
-              </Button>
-            ))}
-
+    
             {/* Profile Avatar Dropdown */}
             <IconButton onClick={handleAvatarClick} size="small" sx={{ ml: 1 }}>
               <Avatar
@@ -118,11 +102,8 @@ const Layout: React.FC = () => {
             >
               <MenuItem onClick={() => handleMenuSelect('myprofile')}>My Profile</MenuItem>
               <MenuItem onClick={() => handleMenuSelect('changepassword')}>Change Password</MenuItem>
+              <MenuItem onClick={() => handleLogout()}> {isLogin ? 'Logout' : 'Login'}</MenuItem>
             </Menu>
-
-            <Button color="inherit" onClick={handleLogout}>
-              {isLogin ? 'Logout' : 'Login'}
-            </Button>
           </Box>
         </Toolbar>
       </AppBar>

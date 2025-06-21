@@ -9,7 +9,6 @@ interface APPTextFieldProps {
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   placeholder?: string;
   isreq?: boolean;
-   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
   options?: string[];
 }
 

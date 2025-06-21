@@ -6,6 +6,7 @@ interface AppButtonProps {
   color?: ButtonProps['color'];
   text: string;
   onClick: () => void;
+  buttonIcon?: React.ReactNode;
 }
 
 const AppButton: React.FC<AppButtonProps> = ({
@@ -13,9 +14,10 @@ const AppButton: React.FC<AppButtonProps> = ({
   onClick,
   color = 'primary',
   text,
+  buttonIcon
 }) => {
   return (
-    <Button onClick={onClick} variant={variant} color={color}>
+    <Button onClick={onClick} variant={variant} color={color} startIcon={buttonIcon}>
       {text}
     </Button>
   );

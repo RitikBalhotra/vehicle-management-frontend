@@ -36,13 +36,22 @@ interface AppTableProps {
   headerColumn: Column[];
   title?: string;
   rowActions?: RowAction[];
+  text?: string;
+  onAddClick?: () => void;
+  buttonColor?: string;
+  buttonIcon?: React.ReactNode; 
 }
 
 const AppTable: React.FC<AppTableProps> = ({
   rowData,
   headerColumn,
   rowActions = [],
-  title = '',
+  title,
+  text,
+  onAddClick,
+  buttonColor,
+  buttonIcon
+
 }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [search, setSearch] = useState<string>('');
@@ -93,8 +102,20 @@ const AppTable: React.FC<AppTableProps> = ({
             size="small"
             sx={{ minWidth: 200 }}
           />
-
-          {/* Header actions are removed since selection is gone */}
+          
+            <AppButton
+              onClick={onAddClick}
+              variant="contained"
+              buttonIcon={buttonIcon}
+              sx={{
+                backgroundColor: buttonColor,
+                '&:hover': {
+                  backgroundColor: buttonColor,
+                  opacity: 0.85,
+                },
+              }}
+              text={text ?? ""}
+            />
         </Box>
 
         {/* Table */}

@@ -18,7 +18,7 @@ const AddDriver: React.FC<AddDriverProps> = ({ value, setValue }) => {
 
     const handleFileChange = (
         e: ChangeEvent<HTMLInputElement>,
-        field: "profileImage" | "licenseFile"
+        field: "profilePic" | "licenseFile" | "drivingLicense"
     ) => {
         const file = e.target.files?.[0] || null;
         setValue((prev) => ({ ...prev, [field]: file }));
@@ -35,7 +35,7 @@ const AddDriver: React.FC<AddDriverProps> = ({ value, setValue }) => {
             { name: 'role', label: 'Role', inputProps: { readOnly: true }, type: 'text' },
             { name: 'experience', label: 'Experience (yrs)', placeholder: "Experience in years" },
             { name: 'address', label: 'Address', placeholder: "Address" },
-            { name: 'licenseExpiryDate', label: 'License Expiry', type: 'date' }
+            { name: 'licenseExpiry', label: 'License Expiry', type: 'date' }
         ]
 
 
@@ -67,10 +67,10 @@ const AddDriver: React.FC<AddDriverProps> = ({ value, setValue }) => {
                 <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, "profileImage")}
+                    onChange={(e) => handleFileChange(e, "profilePic")}
                 />
-                {value.profileImage && (
-                    <Typography variant="caption">{value.profileImage.name}</Typography>
+                {value.profilePic && (
+                    <Typography variant="caption">{value.profilePic.name}</Typography>
                 )}
             </Box>
 
@@ -80,10 +80,12 @@ const AddDriver: React.FC<AddDriverProps> = ({ value, setValue }) => {
                 <input
                     type="file"
                     accept="image/*,application/pdf"
-                    onChange={(e) => handleFileChange(e, "licenseFile")}
+                    onChange={(e) => handleFileChange(e, "drivingLicense")}
                 />
-                {value.licenseFile && (
-                    <Typography variant="caption">{value.licenseFile.name}</Typography>
+                {value.drivingLicense && (
+                    <Typography variant="caption">
+                        {value.drivingLicense instanceof File}         
+                    </Typography>
                 )}
             </Box>
         </Box>

@@ -7,7 +7,7 @@ import AppButton from "../Components/UI/AppButton";
 import APPModal from "../Components/UI/AppModal";
 import AppTable from "../Components/UI/Apptable";
 import AddDriver from "../Driver/AddDrivers";
-import AddManager from "../Manager/AddManager"; // in case manager edit is allowed
+import AddManager from "../Features/Manager/AddManager"; 
 import type { Driver, DriverForm } from "./types-d";
 
 const defaultForm: DriverForm = {

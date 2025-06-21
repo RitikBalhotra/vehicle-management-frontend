@@ -4,19 +4,19 @@ import {
   Typography,
   Paper,
   Stack,
-  TextField,
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../images/login-bg.png';
 import APPTextField from '../Components/UI/AppTextField';
-import { LOGINAPI, POSTAPI } from '../Service/APIService';
+import { FORGOTPASSWORD, LOGINAPI, POSTAPI } from '../Service/APIService';
 import StorageService from '../Service/StorageService';
+import ToasterService from '../Service/ToastService';
 
 const LoginPage = () => {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const navigate = useNavigate();
-
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot password'>('login');
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [forgotData, setForgotData] = useState({ email: '' });
   const [user, setUser] = useState({
     firstName: '',
     lastName: '',
@@ -24,16 +24,8 @@ const LoginPage = () => {
     password: '',
     mobile: '',
     dob: '',
-    role: '',
-    experience: '',
-    address: '',
-    licenseExpiryDate: '',
-    vehicleAssigned: '',
   });
-
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [licenseFile, setLicenseFile] = useState<File | null>(null);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
 
 
   // handle change 
@@ -41,12 +33,15 @@ const LoginPage = () => {
     const { name, value } = e.target;
     if (mode === 'signup') {
       setUser(prev => ({ ...prev, [name]: value }));
-    } else {
+    } else if (mode === 'forgot password') {
+      setForgotData(prev => ({ ...prev, [name]: value }));
+    }
+    else {
       setLoginData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  
+
   // handle login 
   const handleLogin = async () => {
     const { email, password } = loginData;
@@ -56,65 +51,55 @@ const LoginPage = () => {
       const res = await LOGINAPI({ url: '/login', payload: loginData });
       StorageService.setToken(res.token);
       StorageService.setUser(res.user);
-
-      // Navigate using full role string, not role[0]
-      navigate(`/${res.user.role}/dashboard`);
+      ToasterService.showtoast({ message: 'Login Successfully', type: 'success' })
+      navigate(`/dashboard`);
     } catch (err: any) {
-      alert(`Login failed: ${err.message}`);
+      ToasterService.showtoast({ message: `${err.message}`, type: `error` })
     }
   };
 
+  // handle forgot password 
+  const handleForgotPassword = async () => {
+    const { email } = forgotData;
+    if (!email) return alert('Email is required');
+
+    try {
+      const res = await FORGOTPASSWORD({ url: `/forgot-password`, payload: { email } })
+      console.log(res);
+      if (res) { alert("Reset Password sent to your mail") }
+    }
+    catch {
+      console.log("User NOt FOund");
+    }
+  }
 
   // handle signup
   const handleSignUp = async () => {
-    if (!user.role) {
-      alert("Please select a role");
-      return;
-    }
-
-    const payload: Record<string, any> = {
-      ...user,
-      profileImage,
-      licenseFile,
-    };
-
     try {
-      const response = await POSTAPI({
+      await POSTAPI({
         url: "/register",
-        payload,
+        payload: user
       });
 
-      console.log("✅ Register success:", response);
       alert("User registered successfully!");
-      setMode("login"); // switch to login after success
+      setMode("login");
     } catch (error: any) {
-      console.error("❌ Register failed:", error.message || error);
       alert("Registration failed: " + (error.message || "Unknown error"));
     }
   };
 
 
-  const formFields = mode === 'signup'
-    ? [
-      { name: 'firstName', label: 'First Name' },
-      { name: 'lastName', label: 'Last Name' },
-      { name: 'email', label: 'Email' },
-      { name: 'mobile', label: 'Mobile' },
-      { name: 'password', label: 'Password', type: 'password' },
-      { name: 'dob', label: 'Date of Birth', type: 'date' },
-      { name: 'role', label: 'Role', type: 'select', options: ['admin', 'manager', 'driver'] },
-      ...(user.role === 'driver'
-        ? [
-          { name: 'experience', label: 'Experience (yrs)' },
-          { name: 'address', label: 'Address' },
-          { name: 'licenseExpiryDate', label: 'License Expiry', type: 'date' },
-        ]
-        : []),
-    ]
-    : [
+  const formFields = mode === 'signup' ? [
+    { name: 'firstName', label: 'First Name' },
+    { name: 'lastName', label: 'Last Name' },
+    { name: 'email', label: 'Email' },
+    { name: 'mobile', label: 'Mobile' },
+    { name: 'password', label: 'Password', type: 'password' },
+  ]
+    : mode === 'login' ? [
       { name: 'email', label: 'Email' },
       { name: 'password', label: 'Password', type: 'password' },
-    ];
+    ] : [{ name: 'email', label: 'Enter Email' }]
 
   return (
     <Box
@@ -160,41 +145,44 @@ const LoginPage = () => {
           p: 3,
         }}
       >
-        <Paper elevation={6} sx={{ width: '100%', maxWidth: 450, p: 4, borderRadius: 3 }}>
-          <Typography
-            variant="h5"
-            fontWeight={700}
-            mb={2}
-            textAlign="center"
-            color="primary"
-          >
-            {mode === 'login' ? 'Login' : 'Sign Up'}
-          </Typography>
+        <Paper
+          elevation={6}
+          sx={{
+            width: '100%',
+            maxWidth: 450,
+            p: 0,
+            borderRadius: 3,
+            height: 550, // Fixed height for consistency
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Box sx={{ p: 3 }}>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              mb={2}
+              textAlign="center"
+              color="primary"
+            >
+              {mode.charAt(0).toUpperCase() + mode.slice(1).toLowerCase()}
+            </Typography>
+          </Box>
 
-          <Stack spacing={2}>
-            {formFields.map(field => (
-              <Box key={field.name}>
-                <Typography variant="body2" fontWeight={600} mb={0.5}>
-                  {field.label}
-                </Typography>
-                {field.type === 'select' ? (
-                  <TextField
-                    required
-                    select
-                    fullWidth
-                    name={field.name}
-                    value={user[field.name as keyof typeof user]}
-                    onChange={handleChange}
-                    SelectProps={{ native: true }}
-                  >
-                    <option value="">Select a role</option>
-                    {field.options?.map(opt => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </TextField>
-                ) : (
+          {/* Scrollable content */}
+          <Box
+            sx={{
+              px: 3,
+              flex: 1,
+              overflowY: 'auto',
+            }}
+          >
+            <Stack spacing={2} pb={2}>
+              {formFields.map((field) => (
+                <Box key={field.name}>
+                  <Typography variant="body2" fontWeight={600} mb={0.5}>
+                    {field.label}
+                  </Typography>
                   <APPTextField
                     name={field.name}
                     type={field.type || 'text'}
@@ -203,64 +191,83 @@ const LoginPage = () => {
                     value={
                       mode === 'signup'
                         ? user[field.name as keyof typeof user]
-                        : loginData[field.name as keyof typeof loginData]
+                        : mode === 'login'
+                          ? loginData[field.name as keyof typeof loginData]
+                          : forgotData[field.name as keyof typeof forgotData]
                     }
                   />
-                )}
-              </Box>
-            ))}
+                </Box>
+              ))}
+            </Stack>
+          </Box>
 
-            {mode === 'signup' && (
+          {/* Button Section (Sticky footer style) */}
+          <Box sx={{ px: 3, pb: 3 }}>
+            {mode === 'forgot password' ? (
               <>
-                <Typography variant="body2" fontWeight={600}>
-                  Upload Profile Image
-                </Typography>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => setProfileImage(e.target.files?.[0] ?? null)}
-                />
-
-                {user.role === 'driver' && (
-                  <>
-                    <Typography variant="body2" fontWeight={600}>
-                      Upload License Document
-                    </Typography>
-                    <input
-                      type="file"
-                      accept=".pdf,image/*"
-                      onChange={e => setLicenseFile(e.target.files?.[0] ?? null)}
-                    />
-                  </>
-                )}
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleForgotPassword}
+                  sx={{ py: 1.3, fontWeight: 'bold', borderRadius: 20 }}
+                >
+                  Reset Password
+                </Button>
+                <Button
+                  onClick={() => setMode('login')}
+                  sx={{ textTransform: 'none', fontSize: 14 }}
+                >
+                  Nevermind, I Got it
+                </Button>
+              </>
+            ) : mode === 'signup' ? (
+              <>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleSignUp}
+                  sx={{ py: 1.3, fontWeight: 'bold', borderRadius: 20 }}
+                >
+                  Register
+                </Button>
+                <Button
+                  onClick={() => setMode('login')}
+                  sx={{ textTransform: 'none', fontSize: 14 }}
+                >
+                  Already have an account? Login
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleLogin}
+                  sx={{ py: 1.3, fontWeight: 'bold', borderRadius: 20 }}
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={() => setMode('forgot password')}
+                  sx={{ textTransform: 'none', fontSize: 14 }}
+                >
+                  Forget password?
+                </Button>
+                <Button
+                  onClick={() =>
+                    setMode(mode === 'login' ? 'signup' : 'login')
+                  }
+                  sx={{ textTransform: 'none', fontSize: 14 }}
+                >
+                  {mode === 'login'
+                    ? "Don't have an account? Create one"
+                    : 'Already have an account? Login'}
+                </Button>
               </>
             )}
-
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={() => {
-                if (mode === 'login') {
-                  handleLogin();
-                } else {
-                  handleSignUp();
-                }
-              }}
-              sx={{ py: 1.3, fontWeight: 'bold', borderRadius: 20 }}
-            >
-              {mode === 'login' ? 'Login' : 'Register'}
-            </Button>
-
-            <Button
-              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              sx={{ textTransform: 'none', fontSize: 14 }}
-            >
-              {mode === 'login'
-                ? "Don't have an account? Create one"
-                : 'Already have an account? Login'}
-            </Button>
-          </Stack>
+          </Box>
         </Paper>
+
       </Box>
     </Box>
   );

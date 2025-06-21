@@ -4,7 +4,7 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import APPTextField from "../Components/UI/AppTextField";
+import APPTextField from "../../Components/UI/AppTextField";
 import type { ChangeEvent } from "react";
 import type { ManagerForm } from "./types-m";
 
@@ -58,8 +58,15 @@ const AddManager: React.FC<AddManagerProps> = ({ value, setValue }) => {
             name={field.name}
             value={
               field.type === "date"
-                ? formatDate(value[field.name as keyof ManagerForm])
-                : value[field.name as keyof ManagerForm] || ""
+                ? (() => {
+                    const v = value[field.name as keyof ManagerForm];
+                    return typeof v === "string" || v instanceof Date || v === null || v === undefined
+                      ? formatDate(v)
+                      : "";
+                  })()
+                : typeof value[field.name as keyof ManagerForm] === "object"
+                  ? ""
+                  : value[field.name as keyof ManagerForm] || ""
             }
             onChange={handleChange}
             type={field.type || "text"}
@@ -109,11 +116,13 @@ const AddManager: React.FC<AddManagerProps> = ({ value, setValue }) => {
           </Button>
 
           <Typography variant="body2">
-            {value.profilePic instanceof File
-              ? value.profilePic
-              : typeof value.profilePic === "string"
+            {value.profilePic
+              ? typeof value.profilePic === "string"
                 ? value.profilePic.split('/').pop()
-                : "No file selected"}
+                : value.profilePic instanceof File
+                  ? value.profilePic.name
+                  : ""
+              : "No file selected"}
           </Typography>
         </Box>
 

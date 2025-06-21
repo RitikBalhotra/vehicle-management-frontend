@@ -10,38 +10,29 @@ interface ApiParams {
 }
 
 // Register User
-export const POSTAPI = async ({ url, payload = {}, header = {} }: ApiParams) => {
-  try {
-    const formData = new FormData();
+export const POSTAPI = async ({
+  url,
+  payload,
+  token = null,
+}: {
+  url: string;
+  payload: any;
+  token?: string | null;
+}) => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
-    for (const key in payload) {
-      const value = payload[key];
-      if (value === undefined || value === null) continue;
-
-      if (key === "profileImage") {
-        formData.append("profilePic", value); 
-      } else if (key === "licenseFile") {
-        formData.append("drivingLicense", value); 
-      } else {
-        formData.append(key, value);
-      }
-    }
-    const response = await axios.post(`${baseUrl}${url}`, formData, {
-      headers: {
-        ...header,
-        "Content-Type": "multipart/form-data",
-      },
-      withCredentials: true,
-    });
-
-    return response.data;
-  } catch (error: any) {
-    console.error("POSTAPI Error:", error);
-    throw new Error(error.response?.data?.message || error.message);
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
+
+  const response = await axios.post(`${baseUrl}${url}`, payload, {
+    headers,
+  });
+
+  return response.data;
 };
-
-
 
 
 // login 
@@ -57,9 +48,6 @@ export const LOGINAPI = async ({ url, payload = {}, header = {} }: ApiParams) =>
     throw new Error(error.response?.data?.message || error.message);
   }
 };
-
-
-
 
 
 
@@ -96,6 +84,42 @@ export const GETBYID = async ({ url }: ApiParams) => {
     throw error;
   }
 };
+
+// find by email
+export const FINDBYEMAIL = async ({url}: ApiParams) => {
+  try {
+    const res = await axios.get(`${baseUrl}${url}`);
+    console.log(res.data.user);
+  } catch (err) {
+    console.error("User not found or error occurred", err);
+  }
+};
+
+
+// forget password
+export const FORGOTPASSWORD = async({url,payload}: ApiParams)=>{
+  try{
+    const res = await axios.post(`${baseUrl}${url}`,payload );
+    return res.data;
+  }
+  catch(error){
+    console.error('Forget Error:', error);
+    throw error;
+  }
+};
+
+
+//Reset password
+export const RESET = async ({url,payload}: ApiParams)=>{
+  try{
+    const res = await axios.post(`${baseUrl}${url}`, payload);
+    return res.data;
+  }
+  catch(error){
+    console.error('Reset error', error);
+    throw error;
+  }
+}
 
 
 // Delete User
@@ -169,6 +193,20 @@ export const GETALLVEHICLES = async ({ url, header = {} }: ApiParams) => {
   }
 };
 
+// get all drivers 
+export const GETALLDRIVERS = async ({ url }: ApiParams) => {
+  try {
+    const response = await axios.get(`${baseUrl}${url}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to fetch drivers:", error);
+    return { success: false, message: "Error fetching drivers" };
+  }
+};
+
+
 // Delete Vehicle
 export const DELETEVEHICLE = async ({ url }: ApiParams) => {
   try {
@@ -200,9 +238,38 @@ export const UPDATEVEHICLE = async ({ url, payload = {}, header = {} }: ApiParam
   }
 };
 
+// assign vehicle 
+export const ASSIGNVEHICLE = async ({ driverId, vehicleId, assignedBy, }: { driverId: string; vehicleId: string; assignedBy: string; }) => {
+  console.log("driverid :" + driverId);
+  console.log("vehicleid: " + vehicleId);
+  console.log("assigned by: " + assignedBy);
+  if (!driverId || !vehicleId || !assignedBy) {
+    console.log("Missing required fields");
+  }
 
-// // upload to chloudinary 
-// export const uploadToCloudinary = async (file: File) => { 
+  const response = await axios.put(`${baseUrl}/assign-vehicle/${driverId}`, {
+    vehicleId,
+    assignedBy,
+  }, {
+    withCredentials: true,
+  });
+
+  return response.data;
+};
+
+// get assign vehcile for driver 
+export const GETASSIGNEDVEHICLE = async (userId: string) => {
+  const response = await axios.get(`${baseUrl}/driver/assigned-vehicle/${userId}`, {
+    withCredentials: true,
+  });
+
+  return response.data;
+};
+
+
+
+// // upload to chloudinary
+// export const uploadToCloudinary = async (file: File) => {
 //   const formData = new FormData();
 //   formData.append('file', file);
 //   formData.append('upload_preset', 'VMS-Data');

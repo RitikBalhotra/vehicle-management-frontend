@@ -1,12 +1,14 @@
 import { Box, Grid, Paper, Typography } from "@mui/material";
-import AppButton from "../Components/UI/AppButton";
-import AppTable from "../Components/UI/Apptable";
-import APPModal from "../Components/UI/AppModal";
+import AppButton from "../../Components/UI/AppButton";
+import AppTable from "../../Components/UI/Apptable";
+import APPModal from "../../Components/UI/AppModal";
 import AddVehicle from "./AddVehicle";
 import { useEffect, useState } from "react";
-import { GETALLVEHICLES, POSTVEHICLE, UPDATEVEHICLE } from "../Service/APIService";
+import { GETALLAPI, GETALLDRIVERS, GETALLVEHICLES, POSTVEHICLE, UPDATEVEHICLE } from "../../Service/APIService";
 import type { Vehicle, VehicleForm } from "./types-v";
-import StorageService from "../Service/StorageService";
+import StorageService from "../../Service/StorageService";
+import AssignVehicleForm from "./AssignVeichleForm";
+import type { Driver } from "../../Driver/types-d";
 
 const defaultForm: VehicleForm = {
   vehicleName: "",
@@ -23,23 +25,38 @@ const defaultForm: VehicleForm = {
 
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<VehicleForm>(defaultForm);
   const [editData, setEditData] = useState<VehicleForm | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [role, setRole]  =useState("");
+
 
   useEffect(() => {
     fetchVehicles();
+    fetchDrivers();
   }, []);
 
   const fetchVehicles = async () => {
     try {
       const res = await GETALLVEHICLES({ url: "/vehiclelist" });
       if (res.data) setVehicles(res.data);
+      const user = StorageService.getUser();
+      console.log(user.role[0]);
+      setRole(user.role[0])
     } catch (error) {
       console.error("Vehicle fetch failed:", error);
       alert("Failed to fetch vehicles.");
+    }
+  };
+
+
+   const fetchDrivers = async () => {
+    const res = await GETALLDRIVERS({url:'/drivers'}); 
+    if (res.success) {
+      setDrivers(res.data);
     }
   };
 
@@ -245,6 +262,13 @@ const Vehicles = () => {
         </Paper>
       </Box>
 
+      {(role === "admin" || role === "manager") && (
+        <AssignVehicleForm
+          drivers={drivers}
+          vehicles={vehicles}
+          onSuccess={fetchVehicles} // refresh the data after assign
+        />
+      )}
       {/* Modal for Add/Edit Vehicle */}
       <APPModal
         isOpen={open}

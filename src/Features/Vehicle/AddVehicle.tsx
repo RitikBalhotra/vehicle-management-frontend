@@ -1,6 +1,6 @@
 import { Box, Typography, Button, Avatar } from "@mui/material";
 import type { VehicleForm } from "./types-v";
-import APPTextField from "../Components/UI/AppTextField";
+import APPTextField from "../../Components/UI/AppTextField";
 
 type Props = {
   value: VehicleForm;

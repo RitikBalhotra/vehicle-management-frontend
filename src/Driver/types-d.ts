@@ -1,13 +1,20 @@
 export interface Driver {
-    id:'',
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    mobile: '',
-    dob: '',
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    mobile: string;
+    dob: string
     role:  'driver';
-    [key : string]: string | number;
+    address:string;
+    experience:string;
+    licenseExpiry:string;
+    licenseFile: null | File | string;
+    [key : string]: any;
 }
 
 export type DriverForm = Omit<Driver, "id">;
+
+
+
