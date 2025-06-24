@@ -1,5 +1,6 @@
 import axios from 'axios';
 import StorageService from '../Service/StorageService';
+import Spinnerservice from './SpinnerService';
 
 // Make sure to define REACT_APP_API_URL in your .env file (e.g., REACT_APP_API_URL=http://localhost:5000)
 const baseUrl = "https://vehicle-management-server-1-ly86.onrender.com/api"
@@ -28,7 +29,7 @@ export const POSTAPI = async ({
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-
+  Spinnerservice.showSpinner();
   const response = await axios.post(`${baseUrl}${url}`, payload, {
     headers,
   });
@@ -149,8 +150,8 @@ export const CHANGEPASSWORD = async ({ url, payload }: ApiParams) => {
     })
     return response.data;
   }
-  catch (error : any) {
-    throw new Error(error.response?.data.message|| error.message)
+  catch (error: any) {
+    throw new Error(error.response?.data.message || error.message)
   }
 }
 

@@ -4,6 +4,7 @@ import Spinnerservice from '../../Service/SpinnerService';
 
 const Spinner: React.FC = () => {
     const [open, setOpen] = useState<boolean>(false);
+    
     useEffect(() => {
         console.log("spinner mounted");
         Spinnerservice.register((loading) => {
@@ -25,7 +26,7 @@ const Spinner: React.FC = () => {
                     alignItems: 'center',
                     backdropFilter: 'blur(1px)',
                     backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue
-                    zIndex: 20000,
+                    zIndex: 13000,
                     pointerEvents: 'all',
                     overflow: 'hidden',
                 }}

@@ -10,9 +10,9 @@ import AppToast from './Components/UI/AppToast';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {/* <Provider store={store}> */}
-    <Spinner />
     <AppToast />
     <BrowserRouter>
+    <Spinner />
       <App />
     </BrowserRouter>
     {/* </Provider> */}
