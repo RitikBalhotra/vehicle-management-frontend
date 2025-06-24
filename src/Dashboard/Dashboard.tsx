@@ -91,9 +91,9 @@ const Dashboard = () => {
       } else {
         console.warn("Vehicle data not an array:", vehicleRes);
       }
-      Spinnerservice.hideSpinner();
 
     } catch (err) {
+      Spinnerservice.hideSpinner();
       console.error("Fetching data error:", err);
     }
   }, []);
