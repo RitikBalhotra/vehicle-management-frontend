@@ -33,6 +33,7 @@ const APPModal: React.FC<AppModalProps> = ({
             aria-describedby="alert-dialog-description"
             fullWidth
             maxWidth={size}
+            sx={{justifyContent:"center", alignItems:"center"}}
         >
             <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
             <DialogContent>{children}</DialogContent>
