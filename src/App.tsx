@@ -19,13 +19,9 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route path="myprofile" element={<MyProfile />} />
         <Route path='changepassword' element={<ChangePassword />} />
-        {/* Admin Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
-
-
-
-
       </Route>
+      <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
 

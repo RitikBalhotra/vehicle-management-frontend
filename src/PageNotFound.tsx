@@ -1,10 +1,16 @@
 import { Box, Typography, Button, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom'
 import pageNotFoundGif from "./images/page-not-found.png"
+import { useEffect } from 'react';
 
 const PageNotFound = () => {
   const navigate = useNavigate();
-  console.log("page not found");
+   useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/login");
+    }, 3000); 
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   return (
     <Box
