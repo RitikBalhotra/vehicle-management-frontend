@@ -1,5 +1,8 @@
 {
   "rewrites": [
-    { "src": "/", "destination": "/" }
+    {
+      "source": "/(.*)", 
+      "destination": "/$1"
+    }
   ]
 }
