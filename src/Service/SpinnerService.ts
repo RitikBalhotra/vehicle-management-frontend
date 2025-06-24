@@ -1,7 +1,7 @@
 type SpinnerCallback = (loading: boolean) => void;
 
 class Spinnerservice {
-  static callBack: SpinnerCallback | null = null;
+  private static callBack: SpinnerCallback | null = null;
 
   static register(spinnerCallback: SpinnerCallback): void {
     Spinnerservice.callBack = spinnerCallback;

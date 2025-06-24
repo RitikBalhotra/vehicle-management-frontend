@@ -5,6 +5,7 @@ import Spinnerservice from '../../Service/SpinnerService';
 const Spinner: React.FC = () => {
     const [open, setOpen] = useState<boolean>(false);
     useEffect(() => {
+        console.log("spinner mounted");
         Spinnerservice.register((loading) => {
             setOpen(loading);
         });

@@ -93,8 +93,9 @@ const Dashboard = () => {
       }
 
     } catch (err) {
-      Spinnerservice.hideSpinner();
       console.error("Fetching data error:", err);
+    }finally{
+      Spinnerservice.hideSpinner();
     }
   }, []);
 
