@@ -37,6 +37,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AppForm from "../Components/UI/AppForm";
 import AssignVehicleForm from "../Features/Vehicle/AssignVeichleForm";
+import Spinnerservice from "../Service/SpinnerService";
 
 
 
@@ -74,6 +75,7 @@ const Dashboard = () => {
   //fetched data
   const fetchedData = useCallback(async () => {
     try {
+      Spinnerservice.showSpinner();
       const userRes = await GETALLAPI({ url: "/list" });
       const vehicleRes = await GETALLVEHICLES({ url: "/vehiclelist" });
 
@@ -89,6 +91,7 @@ const Dashboard = () => {
       } else {
         console.warn("Vehicle data not an array:", vehicleRes);
       }
+      Spinnerservice.hideSpinner();
 
     } catch (err) {
       console.error("Fetching data error:", err);
@@ -272,8 +275,8 @@ const Dashboard = () => {
 
   // handle Delete
   const handleDelete = (r: any) => {
-    setSelectedUserId(r._id);        // Store the selected user ID
-    setConfirmOpen(true);            // Open confirmation dialog
+    setSelectedUserId(r._id);        
+    setConfirmOpen(true);            
 
   };
 
@@ -333,7 +336,6 @@ const Dashboard = () => {
     try {
       const form = new FormData();
 
-      // Append all fields to formData
       Object.entries(formData).forEach(([key, value]) => {
         if (value instanceof File || value instanceof Blob) {
           form.append(key, value);
@@ -344,7 +346,7 @@ const Dashboard = () => {
         }
       });
 
-      // 🟢 If it's a vehicle
+      
       if (addRole === "vehicle") {
         await POSTVEHICLE({
           url: "/add",

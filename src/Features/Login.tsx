@@ -12,6 +12,7 @@ import APPTextField from '../Components/UI/AppTextField';
 import { FORGOTPASSWORD, LOGINAPI, POSTAPI } from '../Service/APIService';
 import StorageService from '../Service/StorageService';
 import ToasterService from '../Service/ToastService';
+import Spinnerservice from '../Service/SpinnerService';
 
 const LoginPage = () => {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot password'>('login');
@@ -45,13 +46,15 @@ const LoginPage = () => {
   // handle login 
   const handleLogin = async () => {
     const { email, password } = loginData;
-    if (!email || !password) return alert('Email and password are required');
+    if (!email || !password) return ToasterService.showtoast({message:"Email and Password are required!", type:"error"});
 
     try {
+      Spinnerservice.showSpinner();
       const res = await LOGINAPI({ url: '/login', payload: loginData });
       StorageService.setToken(res.token);
       StorageService.setUser(res.user);
       ToasterService.showtoast({ message: 'Login Successfully', type: 'success' })
+      Spinnerservice.hideSpinner();
       navigate(`/dashboard`);
     } catch (err: any) {
       ToasterService.showtoast({ message: `${err.message}`, type: `error` })
@@ -61,12 +64,14 @@ const LoginPage = () => {
   // handle forgot password 
   const handleForgotPassword = async () => {
     const { email } = forgotData;
-    if (!email) return alert('Email is required');
+    if (!email) return ToasterService.showtoast({message:"email is required!", type:"info"});
 
     try {
+      Spinnerservice.showSpinner()
       const res = await FORGOTPASSWORD({ url: `/forgot-password`, payload: { email } })
+      Spinnerservice.hideSpinner();
       console.log(res);
-      if (res) { alert("Reset Password sent to your mail") }
+      if (res) { ToasterService.showtoast({message:"Reset Password Sent on Email", type:"info"}) }
     }
     catch {
       console.log("User NOt FOund");
@@ -76,15 +81,16 @@ const LoginPage = () => {
   // handle signup
   const handleSignUp = async () => {
     try {
+      Spinnerservice.showSpinner();
       await POSTAPI({
         url: "/register",
         payload: user
       });
-
-      alert("User registered successfully!");
+      ToasterService.showtoast({ message: "User register Succussfully!", type: "success" })
+      Spinnerservice.hideSpinner();
       setMode("login");
     } catch (error: any) {
-      alert("Registration failed: " + (error.message || "Unknown error"));
+     ToasterService.showtoast({message:`Registration failed : ${error}`, type:"error"})
     }
   };
 

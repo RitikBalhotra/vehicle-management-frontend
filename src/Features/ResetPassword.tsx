@@ -4,6 +4,8 @@ import APPTextField from "../Components/UI/AppTextField"; // your reusable input
 import img from "../images/login-bg.png"
 import { POSTAPI } from "../Service/APIService"; // your API handler
 import { useNavigate } from "react-router-dom";
+import ToasterService from "../Service/ToastService";
+import Spinnerservice from "../Service/SpinnerService";
 
 const ResetPassword = () => {
     const [form, setForm] = useState({ otp: "", newPassword: "" });
@@ -15,22 +17,24 @@ const ResetPassword = () => {
 
     const handleSubmit = async () => {
         if (!form.otp || !form.newPassword) {
-            alert("Both fields are required");
+            ToasterService.showtoast({message:"Both Fields are required", type:"info"})
             return;
         }
 
         try {
-            const response = await POSTAPI({
+            Spinnerservice.showSpinner();
+            await POSTAPI({
                 url: "/reset",
                 payload: {
                     otp: form.otp,
                     newPassword: form.newPassword,
                 },
             });
-            alert(response.message || "Password reset successfully");
+            ToasterService.showtoast({message: "Password reset successfully", type:"success"});
             navigate("/login");
+            Spinnerservice.hideSpinner();
         } catch (err: any) {
-            alert(err.response?.data?.message || "Failed to reset password");
+            ToasterService.showtoast({message:"Failed to reset Password", type:"error"})
         }
     };
 
