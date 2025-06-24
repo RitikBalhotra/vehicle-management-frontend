@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
 import { ASSIGNVEHICLE } from '../../Service/APIService';
 import type { Driver } from '../../Driver/types-d';
@@ -23,6 +23,7 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
             alert('Please select both driver and vehicle');
             return;
         }
+        
 
         setAssigning(true);
         try {
@@ -41,17 +42,18 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
             setAssigning(false);
         }
     };
+    console.log(drivers);
 
-    const isPopulatedUser = (
-        user: unknown
-    ): user is { firstName: string; lastName: string } => {
-        return (
-            typeof user === 'object' &&
-            user !== null &&
-            'firstName' in user &&
-            'lastName' in user
-        );
-    };
+    // const isPopulatedUser = (
+    //     user: unknown
+    // ): user is { firstName: string; lastName: string } => {
+    //     return (
+    //         typeof user === 'object' &&
+    //         user !== null &&
+    //         'firstName' in user &&
+    //         'lastName' in user
+    //     );
+    // };
 
     return (
         <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: 2, maxWidth: 400 }}>
@@ -70,9 +72,9 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
             >
                 {drivers.map((d) => (
                     <MenuItem key={d._id} value={d._id}>
-                        {isPopulatedUser(d.userId)
-                            ? `${d.userId.firstName} ${d.userId.lastName}`
-                            : String(d.userId)}
+                        {/* {isPopulatedUser(d._id) */}
+                            {d.firstName} {d.lastName}
+                            {/* // : String(d._id)} */}
                     </MenuItem>
                 ))}
             </TextField>

@@ -14,10 +14,11 @@ import StorageService from "../Service/StorageService";
 import EditIcon from "@mui/icons-material/Edit";
 import { ChangeEvent, useRef } from "react";
 import ToasterService from "../Service/ToastService";
-import { GETBYID } from "../Service/APIService";
+import { GETBYID, UPDATEAPI } from "../Service/APIService";
 import { driverFields, managerFields } from "../Components/types/types"
 import type { DriverForm, ManagerForm, } from "../Components/types/types";
 import { useNavigate } from "react-router-dom";
+import { BoltOutlined, SupervisorAccount } from "@mui/icons-material";
 
 
 
@@ -26,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 const MyProfile = () => {
     const [fields, setFields] = useState<Array<{ name: string; label: string; type?: string }>>([]);
     const [formData, setFormData] = useState<Partial<ManagerForm | DriverForm>>({});
+    const [id, setId] = useState('')
 
     const fileFieldNames = ["profilePic", "licenseFile"];
     const navigate = useNavigate();
@@ -50,10 +52,10 @@ const MyProfile = () => {
         }
 
         try {
-            console.log("User ID:", user.id);
+            setId(user.id);
             const res = await GETBYID({ url: `/user/${user.id}` });
             setFormData(res);
-            if (formData.role === "manger" || formData.role === "admin") {
+            if (res.role == "manger" || res.role == "admin") {
                 setFields(
                     managerFields.map(field => ({
                         ...field,
@@ -77,8 +79,29 @@ const MyProfile = () => {
             });
             navigate("/");
         }
-    }, []);
+    }, [formData]);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+        }));
+    }
+
+    const handleSave = async () => {
+
+        try {
+            await UPDATEAPI({ url: `/update/${id}`, payload: formData, header: { "Content-Type": "multipart/form-data" } })
+            fetchUser();
+            setId("");
+            console.log("update");
+            ToasterService.showtoast({ message: "update infomation successfullly!", type: "success" })
+        }
+        catch (err) {
+            console.log("update error: " + err);
+            ToasterService.showtoast({ message: `${err}`, type: "error" })
+        }
+
     }
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -99,8 +122,8 @@ const MyProfile = () => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     return (
-        <Box sx={{ p: 4, bgcolor: "#f0f2f5", minHeight: "100vh", color: "#fff" }}>
-            <Typography variant="h4"  color="black" fontWeight="bold" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "white", minHeight: "100vh", color: "#fff" }}>
+            <Typography variant="h4" color="black" fontWeight="bold" gutterBottom>
                 My Profile
             </Typography>
             <Typography variant="body2" gutterBottom color="black">
@@ -116,12 +139,20 @@ const MyProfile = () => {
                             p: 3,
                             border: "2px solid white",
                             borderRadius: 3,
-                            bgcolor: "#1e2230",
+                            bgcolor: "#e3e5e1",
                             textAlign: "center",
                         }}
                     >
-                        {/* Avatar with Edit Button */}
-                        <Box sx={{ position: "relative", width: 340, height: 340, mx: "auto", mb: 2 }}>
+                        <Box
+                            sx={{
+                                position: "relative",
+                                width: "100%",
+                                maxWidth: 300, // ⬅️ you can reduce or increase this
+                                mx: "auto",
+                                mb: 2,
+                                aspectRatio: "1", // ✅ Keep it square for a perfect circle
+                            }}
+                        >
                             <Avatar
                                 src={
                                     typeof formData?.profilePic === "string"
@@ -130,21 +161,28 @@ const MyProfile = () => {
                                             ? URL.createObjectURL(formData.profilePic)
                                             : undefined
                                 }
-                                sx={{ width: 340, height: 340 }}
+                                sx={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                }}
                             />
+
+                            {/* Edit Button */}
                             <IconButton
                                 sx={{
                                     position: "absolute",
                                     bottom: 16,
                                     right: 16,
-                                    backgroundColor: "#ffffffcc",
-                                    '&:hover': { backgroundColor: "#ffffff" },
+                                    backgroundColor: "#ffffff",
+                                    '&:hover': { backgroundColor: "red" },
                                 }}
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 <EditIcon sx={{ color: "#000" }} />
                             </IconButton>
 
+                            {/* Hidden File Input */}
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -153,46 +191,45 @@ const MyProfile = () => {
                                 onChange={handleImageChange}
                             />
                         </Box>
-
-                        <Typography variant="h6" color="white">{`${formData?.firstName ?? ""} ${formData?.lastName ?? ""}`}</Typography>
+                        <Typography variant="h4" fontFamily={"initial"} color="black">{`${formData?.firstName ?? ""} ${formData?.lastName ?? ""}`}</Typography>
                         <Divider sx={{ my: 2, bgcolor: "#444" }} />
-                        <Typography variant="body2" color="#aaa">
+                        <Typography variant="body1" color="red">
                             {formData?.role}
                         </Typography>
                     </Paper>
                 </Grid>
 
                 {/* Right Section */}
-                <Grid size={{xs:12, md:8}}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Paper
                         elevation={3}
                         sx={{
                             p: 2,
                             border: "1px solid white",
                             borderRadius: 3,
-                            bgcolor: "#1e2230",
-                            height: "100%",       
+                            bgcolor: "#e3e5e1",
+                            height: "64vh", // ✅ Fixed height
                             display: "flex",
                             flexDirection: "column",
                         }}
                     >
-                        <Typography variant="h6" color="white" gutterBottom>
+                        <Typography variant="h6" color="black" gutterBottom>
                             Profile Details
                         </Typography>
 
+                        {/* Scrollable Inner Area */}
                         <Box
                             sx={{
                                 flex: 1,
                                 overflowY: "auto",
-                                maxHeight: "60vh", 
-                                pr: 1, 
+                                pr: 1,
                             }}
                         >
-                            <Grid container color="white" spacing={2}>
+                            <Grid container spacing={2}>
                                 {fields
                                     .filter((field) => !fileFieldNames.includes(field.name))
                                     .map((field) => (
-                                        <Grid size={{xs:12, md:6}} key={field.name} mt={2}>
+                                        <Grid size={{ xs: 12, md: 6 }} key={field.name} mt={2}>
                                             <TextField
                                                 name={field.name}
                                                 label={field.label}
@@ -205,10 +242,10 @@ const MyProfile = () => {
                                                 type={field.type ?? "text"}
                                                 fullWidth
                                                 sx={{
-                                                    input: { color: "white" },
-                                                    label: { color: "white" },
+                                                    input: { color: "black" },
+                                                    label: { color: "black" },
                                                     "& .MuiOutlinedInput-root": {
-                                                        "& fieldset": { borderColor: "white" },
+                                                        "& fieldset": { borderColor: "black" },
                                                         "&:hover fieldset": { borderColor: "#90caf9" },
                                                         "&.Mui-focused fieldset": { borderColor: "#42a5f5" },
                                                     },
@@ -219,13 +256,15 @@ const MyProfile = () => {
                             </Grid>
                         </Box>
 
-                        <Box mt={3} display="flex" justifyContent="flex-end">
-                            <Button variant="contained" color="primary">
+                        {/* Button - fixed at bottom */}
+                        <Box display="flex" justifyContent="flex-end">
+                            <Button variant="contained" color="primary" onClick={handleSave}>
                                 Save Changes
                             </Button>
                         </Box>
                     </Paper>
                 </Grid>
+
             </Grid>
         </Box>
     );

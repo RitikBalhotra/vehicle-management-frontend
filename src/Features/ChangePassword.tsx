@@ -9,6 +9,9 @@ import { useState } from "react";
 import LockResetIcon from '@mui/icons-material/LockReset';
 import bgImage from "../images/changePassword.png"; // 🔄 Replace with your actual image path
 import APPTextField from "../Components/UI/AppTextField";
+import { CHANGEPASSWORD } from "../Service/APIService";
+import ToasterService from "../Service/ToastService";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +19,7 @@ const ChangePassword = () => {
     newPassword: "",
   });
 
+  const navigate = useNavigate();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -24,9 +28,17 @@ const ChangePassword = () => {
     }));
   };
 
-  const handleChangePassword = () => {
-    console.log("Change Password Payload:", formData);
-    // 🔐 Call API here to change the password
+  const handleChangePassword = async () => {
+    try {
+      await CHANGEPASSWORD({ url: '/changepassword', payload: formData })
+      ToasterService.showtoast({ message: 'Password Changed Successfully!', type: "success" });
+      setFormData({ oldPassword: "", newPassword: "" });
+      navigate("/dashboard")
+    }
+    catch (error) {
+      ToasterService.showtoast({ message: `${error}`, type: "error" })
+      console.log("not update password error: " + error);
+    }
   };
 
   return (

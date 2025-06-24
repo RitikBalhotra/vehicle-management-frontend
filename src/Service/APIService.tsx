@@ -86,7 +86,7 @@ export const GETBYID = async ({ url }: ApiParams) => {
 };
 
 // find by email
-export const FINDBYEMAIL = async ({url}: ApiParams) => {
+export const FINDBYEMAIL = async ({ url }: ApiParams) => {
   try {
     const res = await axios.get(`${baseUrl}${url}`);
     console.log(res.data.user);
@@ -97,12 +97,12 @@ export const FINDBYEMAIL = async ({url}: ApiParams) => {
 
 
 // forget password
-export const FORGOTPASSWORD = async({url,payload}: ApiParams)=>{
-  try{
-    const res = await axios.post(`${baseUrl}${url}`,payload );
+export const FORGOTPASSWORD = async ({ url, payload }: ApiParams) => {
+  try {
+    const res = await axios.post(`${baseUrl}${url}`, payload);
     return res.data;
   }
-  catch(error){
+  catch (error) {
     console.error('Forget Error:', error);
     throw error;
   }
@@ -110,12 +110,12 @@ export const FORGOTPASSWORD = async({url,payload}: ApiParams)=>{
 
 
 //Reset password
-export const RESET = async ({url,payload}: ApiParams)=>{
-  try{
+export const RESET = async ({ url, payload }: ApiParams) => {
+  try {
     const res = await axios.post(`${baseUrl}${url}`, payload);
     return res.data;
   }
-  catch(error){
+  catch (error) {
     console.error('Reset error', error);
     throw error;
   }
@@ -137,6 +137,20 @@ export const DELETE = async ({ url }: ApiParams) => {
   }
 };
 
+//Change Password
+export const CHANGEPASSWORD = async ({ url, payload }: ApiParams) => {
+  try {
+    const response = await axios.put(`${baseUrl}${url}`, payload, {
+      headers: {
+        Authorization: `Bearer ${StorageService.getToken()}`
+      }
+    })
+    return response.data;
+  }
+  catch (error : any) {
+    throw new Error(error.response?.data.message|| error.message)
+  }
+}
 
 
 // Update API

@@ -58,95 +58,97 @@ export interface Vehicle {
   vehicleDescription: string;
   status: string;
   vehiclePhotos?: (File | string)[];
+  [key: string]: any; // Index signature to satisfy RowData
 }
 
 export type VehicleForm = Omit<Vehicle, "id">;
 
-// form fields for user to add users
-interface AddUserFields<T> {
-  name: keyof T | string;
-  label: string;
-  type?: string;
-  placeholder?: string;
-  options?: string[];
-}
+// // form fields for user to add users
+// interface AddUserFields<T> {
+//   name: keyof T | string;
+//   label: string;
+//   type?: string;
+//   placeholder?: string;
+//   options?: string[];
+// }
 
-// Generic field config for forms
-export interface FieldConfig<T> {
-  name: keyof T | string;
-  label: string;
-  type?: string;
-  options?: string[];
-  placeholder?: string;
-}
+// // Generic field config for forms
+// export interface FieldConfig<T> {
+//   name: keyof T | string;
+//   label: string;
+//   type?: string;
+//   options?: string[];
+//   placeholder?: string;
+// }
 
-export const UserFields: AddUserFields<UserForm>[] = [
-  { name: "firstName", label: "First Name", placeholder: "Enter First Name" },
-  { name: "lastName", label: "Last Name", placeholder: "Enter Last Name" },
-  { name: "email", label: "Email", placeholder: "Enter email" },
-  { name: "mobile", label: "Mobile", placeholder: "Enter Mobile no" },
-  {
-    name: "password",
-    label: "Password",
-    type: "password",
-    placeholder: "Enter password",
-  },
-  { name: "dob", label: "Date of Birth", type: "date" },
-  {
-    name: "role",
-    label: "Select Role",
-    type: "select",
-    options: ["admin", "manager", "driver"],
-  },
-  {
-    name: "experience",
-    label: "Experience (yrs)",
-    placeholder: "Experience in years",
-  },
-  { name: "address", label: "Address", placeholder: "Address" },
-  { name: "licenseExpiry", label: "License Expiry", type: "date" },
-  { name: "profilePic", label: "Upload Profile Image", type: "file" },
-  { name: "licenseFile", label: "Upload License Image", type: "file" },
-];
+// export const UserFields: AddUserFields<UserForm>[] = [
+//   { name: "firstName", label: "First Name", placeholder: "Enter First Name" },
+//   { name: "lastName", label: "Last Name", placeholder: "Enter Last Name" },
+//   { name: "email", label: "Email", placeholder: "Enter email" },
+//   { name: "mobile", label: "Mobile", placeholder: "Enter Mobile no" },
+//   {
+//     name: "password",
+//     label: "Password",
+//     type: "password",
+//     placeholder: "Enter password",
+//   },
+//   { name: "dob", label: "Date of Birth", type: "date" },
+//   {
+//     name: "role",
+//     label: "Select Role",
+//     type: "select",
+//     options: ["admin", "manager", "driver"],
+//   },
+//   {
+//     name: "experience",
+//     label: "Experience (yrs)",
+//     placeholder: "Experience in years",
+//   },
+//   { name: "address", label: "Address", placeholder: "Address" },
+//   { name: "licenseExpiry", label: "License Expiry", type: "date" },
+//   { name: "profilePic", label: "Upload Profile Image", type: "file" },
+//   { name: "licenseFile", label: "Upload License Image", type: "file" },
+// ];
 
-// field definitions
-export const driverFields: FieldConfig<Driver>[] = [
-  { name: "firstName", label: "First Name", type: "text" },
-  { name: "lastName", label: "Last Name", type: "text" },
-  { name: "email", label: "Email", type: "email" },
-  { name: "mobile", label: "Mobile", type: "text" },
-  { name: "dob", label: "DOB", type: "date" },
-  { name: "profilePic", label: "Profile Image", type: "file" },
-  {
-    name: "role",
-    label: "Role",
-    type: "select",
-    options: ["driver", "manager", "admin"],
-  },
-  { name: "address", label: "Address", type: "text" },
-  { name: "experience", label: "Experience", type: "text" },
-  { name: "licenseExpiry", label: "License Expiry", type: "date" },
-  { name: "licenseFile", label: "Driving License", type: "file" },
+// // field definitions
+// export const driverFields: FieldConfig<Driver>[] = [
+//   { name: "firstName", label: "First Name", type: "text" },
+//   { name: "lastName", label: "Last Name", type: "text" },
+//   { name: "email", label: "Email", type: "email" },
+//   { name: "mobile", label: "Mobile", type: "text" },
+//   { name: "dob", label: "DOB", type: "date" },
+//   {
+//     name: "role",
+//     label: "Role",
+//     type: "select",
+//     options: ["driver", "manager", "admin"],
+//   },
+//   { name: "address", label: "Address", type: "text" },
+//   { name: "experience", label: "Experience", type: "text" },
+//   { name: "licenseExpiry", label: "License Expiry", type: "date" },
   
-];
+// ];
 
-export const managerFields: FieldConfig<Manager>[] = [
-  { name: "firstName", label: "First Name", type: "text" },
-  { name: "lastName", label: "Last Name", type: "text" },
-  { name: "email", label: "Email", type: "email" },
-  { name: "mobile", label: "Mobile", type: "text" },
-  { name: "dob", label: "DOB", type: "date" },
-  { name: "password", label: "Password", type: "password" },
-];
+// export const managerFields: FieldConfig<Manager>[] = [
+//   { name: "firstName", label: "First Name", type: "text" },
+//   { name: "lastName", label: "Last Name", type: "text" },
+//   { name: "email", label: "Email", type: "email" },
+//   { name: "mobile", label: "Mobile", type: "text" },
+//   { name: "dob", label: "DOB", type: "date" },
+//   { name: "password", label: "Password", type: "password" },
+  
+// ];
 
-export const userFields: FieldConfig<User>[] = [
-  { name: "firstName", label: "First Name", type: "text" },
-  { name: "lastName", label: "Last Name", type: "text" },
-  { name: "email", label: "Email", type: "email" },
-  { name: "mobile", label: "Mobile", type: "text" },
-  { name: "dob", label: "DOB", type: "date" },
-  { name: "password", label: "Password", type: "password" },
-];
+// export const userFields: FieldConfig<User>[] = [
+//   { name: "firstName", label: "First Name", type: "text" },
+//   { name: "lastName", label: "Last Name", type: "text" },
+//   { name: "email", label: "Email", type: "email" },
+//   { name: "mobile", label: "Mobile", type: "text" },
+//   { name: "dob", label: "DOB", type: "date" },
+//   { name: "Select Role", label: "Role", type: "select",  options: ["admin", "manager", "driver"], },
+//   { name: "password", label: "Password", type: "password" },
+
+// ];
 
 // card data
 interface CardDataItem {
@@ -217,4 +219,59 @@ export const vehicleColumns: Column[] = [
   { name: "vehicleYear", label: "Year" },
   { name: "type", label: "Vehicle Type" },
   { name: "chassiNumber", label: "Chassi Number" },
+  { name: "actions", label: "Actions" },
+
 ];
+
+
+
+// types.ts
+
+export type Field = {
+  name: string;
+  label: string;
+  type?: string;
+  options?: string[]; // for select
+};
+
+export const userFields: Field[] = [
+  { name: "profilePic", label: "Profile Pic", type: "file" },
+  { name: "firstName", label: "First Name" },
+  { name: "lastName", label: "Last Name" },
+  { name: "email", label: "Email", type: "email" },
+  { name: "mobile", label: "Mobile" },
+  { name: "dob", label: "Date of birth", type: "date" },
+  { name: "password", label: "Password" },
+
+];
+
+export const managerFields: Field[] = [
+  ...userFields,
+];
+
+export const driverFields: Field[] = [
+  ...userFields,
+  { name: "licenseFile", label: "License File", type: "file" },
+  { name: "address", label: "Address" },
+  { name: "experience", label: "Experience" },
+  { name: "licenseExpiry", label: "License Expiry", type: "date" },
+];
+
+export const vehicleFields: Field[] = [
+  { name: "vehicleName", label: "Vehicle Name" },
+  { name: "vehicleModel", label: "Model" },
+  { name: "vehicleYear", label: "Year", type: "number" },
+  { name: "vehicleType", label: "Type", type: "select", options: ["LTV", "HTV"] },
+  { name: "chassiNumber", label: "Chassi No." },
+  { name: "registrationNumber", label: "Registration No." },
+  { name: "vehicleDescription", label: "Description" },
+  { name: "status", label: "Status", type: "select", options: ["Active", "Inactive"] },
+  { name: "vehiclePhotos", label: "Vehicle Photos", type: "file" },
+];
+
+export const roleFieldMap: Record<string, Field[]> = {
+  user: userFields,
+  manager: managerFields,
+  driver: driverFields,
+  vehicle: vehicleFields,
+};

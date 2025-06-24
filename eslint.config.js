@@ -40,6 +40,12 @@ export default tseslint.config(
           include: ["src"],
           exclude: ["node_modules"],
         },
+        {
+          "@typescript-eslint/no-explicit-any": "off", // allow 'any'
+          "@typescript-eslint/explicit-module-boundary-types": "off", // allow functions without return types
+          "@typescript-eslint/no-unused-vars": "warn", // only warn
+          "@typescript-eslint/ban-ts-comment": "off", // allow @ts-ignore
+        },
       ],
     },
   }

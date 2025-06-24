@@ -6,6 +6,12 @@ import {
   Grid,
   Paper,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import StorageService from "../Service/StorageService";
 import {
@@ -13,11 +19,14 @@ import {
   GETALLAPI,
   GETALLVEHICLES,
   GETASSIGNEDVEHICLE,
+  GETBYID,
+  POSTAPI,
+  POSTVEHICLE,
   UPDATEAPI,
 } from "../Service/APIService";
 import AppTable from "../Components/UI/Apptable";
 import type { Driver, DriverForm, Manager, ManagerForm, User, UserForm, Vehicle, VehicleForm, FieldConfig } from "../Components/types/types";
-import  { cardData, driverFields, managerFields, userFields, UserFields,  } from "../Components/types/types";
+import { cardData, driverFields, managerFields, userFields, } from "../Components/types/types";
 import APPModal from "../Components/UI/AppModal";
 import ToasterService from "../Service/ToastService";
 import {
@@ -28,7 +37,7 @@ import {
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AppForm from "../Components/UI/AppForm";
-import AddVehicle from "../Features/Vehicle/AddVehicle";
+import AssignVehicleForm from "../Features/Vehicle/AssignVeichleForm";
 
 
 
@@ -40,16 +49,15 @@ const Dashboard = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [assignVehicle, setAssignVehicle] = useState<Vehicle | null>(null);
   const [currentCardName, setCurrentCardName] = useState<string>('Total Users');
-  const [initalForm, setInitailForm] = useState(UserFields);
-  const [visibleFields, setVisibleFields] = useState<FieldConfig<any>[]>([]);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<UserForm | ManagerForm | DriverForm | VehicleForm>>({});
   const [editRole, setEditRole] = useState("");
   const [addRole, setAddRole] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
-  const [btnColor, setBtnColor] = useState('')
   const [modalTitle, setModelTitle] = useState('');
-
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [modalContent, setModalContent] = useState<'form' | 'assignVehicle'>('form');
 
   const navigate = useNavigate();
 
@@ -70,20 +78,24 @@ const Dashboard = () => {
       const userRes = await GETALLAPI({ url: "/list" });
       const vehicleRes = await GETALLVEHICLES({ url: "/vehiclelist" });
 
-      console.log("user fecthed : " + userRes);
+
       if (Array.isArray(userRes)) {
         setUsers(userRes);
-        setManagers(userRes.filter((u) => u.role == "manager"));
-        setDrivers(userRes.filter((u) => u.role == "driver"));
-
-
-        if (Array.isArray(vehicleRes)) setVehicles(vehicleRes);
-
+        setManagers(userRes.filter((u) => u.role[0] === "manager"));
+        setDrivers(userRes.filter((u) => u.role[0] === "driver"));
       }
+
+      if (Array.isArray(vehicleRes.data)) {
+        setVehicles(vehicleRes.data);
+      } else {
+        console.warn("Vehicle data not an array:", vehicleRes);
+      }
+
     } catch (err) {
       console.error("Fetching data error:", err);
     }
   }, []);
+
 
   const countMap = {
     users: users.length,
@@ -104,6 +116,7 @@ const Dashboard = () => {
     try {
       const res = await GETASSIGNEDVEHICLE(user.id);
       if (res?.vehicle) setAssignVehicle(res.vehicle);
+      console.log(res);
     } catch (err) {
       console.error("Assigned vehicle fetch failed:", err);
     }
@@ -125,55 +138,166 @@ const Dashboard = () => {
   }, [visibleCards.length]);
 
   // handle Edit
-  const handleEdit = useCallback((r: User | Manager | Driver) => {
-    if (!r) return;
+  const handleEdit = useCallback(async (row: { _id: string }) => {
+    if (!row || !row._id) return;
 
-    setEditId(r._id);
-    setEditRole(r.role);
-    console.log(r.role)
-    setOpen(true);
-    setModelTitle(`Edit ${r.role?.toString().toUpperCase() || "User"}`);
 
-    const baseForm = {
-      firstName: r.firstName || "",
-      lastName: r.lastName || "",
-      email: r.email || "",
-      password: "", // intentionally blank
-      mobile: r.mobile || "",
-      dob: r.dob ? new Date(r.dob) : "",
-      profilePic: r.profilePic || null,
-      role: r.role,
-    };
+    try {
+      const res = await GETBYID({ url: `/user/${row._id}` });
 
-    if (r.role == "driver") {
-      setFormData({
-        ...baseForm,
-        licenseExpiry: r.licenseExpiry ? new Date(r.licenseExpiry) : "",
-        address: r.address || "",
-        experience: r.experience || "",
-        licenseFile: r.licenseFile || null,
-      });
-      setVisibleFields(driverFields);
-    } else if (r.role == "manager") {
-      setFormData(baseForm);
-      setVisibleFields(managerFields);
-    } else {
-      setFormData(baseForm);
-      setVisibleFields(userFields);
+      const role = Array.isArray(res.role) ? res.role[0] : res.role || "driver";
+      setModalContent('form');
+      setEditId(res._id);
+      setEditRole(role);
+      setOpen(true);
+      setModelTitle(`Edit ${role.toUpperCase()}`);
+
+      const baseForm = {
+        firstName: res.firstName || "",
+        lastName: res.lastName || "",
+        email: res.email || "",
+        password: "",
+        mobile: res.mobile || "",
+        dob: res.dob ? new Date(res.dob) : "",
+        profilePic: res.profilePic || null,
+        role: res.role,
+      };
+
+      if (role === "driver") {
+        setFormData({
+          ...baseForm,
+          licenseExpiry: res.licenseExpiry ? new Date(res.licenseExpiry) : "",
+          address: res.address || "",
+          experience: res.experience || "",
+          licenseFile: res.licenseFile || null,
+        });
+      } else if (role === "manager") {
+        setFormData(baseForm);
+      } else if (role === "vehicle") {
+        setFormData(res);
+      } else {
+        setFormData(baseForm);
+      }
+
+      console.log("📝 Edit Form Data (via API):", res);
+    } catch (err) {
+      console.error("❌ Failed to fetch user by ID:", err);
     }
+  }, []);
 
-    console.log("📝 Editing form data:",baseForm);
-  }, [formData]);
+
+  const updateDetails = async () => {
+    try {
+      const form = new FormData();
+
+      // Common user fields
+      form.append("firstName", formData.firstName || "");
+      form.append("lastName", formData.lastName || "");
+      form.append("email", formData.email || "");
+      form.append("mobile", formData.mobile || "");
+      form.append("dob", formData.dob ? new Date(formData.dob).toISOString() : "");
+      form.append("role", editRole); // role is important for backend logic
+
+      // File handling
+      if (formData.profilePic instanceof File) {
+        form.append("profilePic", formData.profilePic);
+      }
+
+      // Driver-specific fields
+      if (editRole === "driver") {
+        form.append("address", formData.address || "");
+        form.append("experience", formData.experience || "");
+        if (formData.licenseExpiry)
+          form.append("licenseExpiry", new Date(formData.licenseExpiry).toISOString());
+
+        if (formData.licenseFile instanceof File) {
+          form.append("drivingLicense", formData.licenseFile);
+        }
+
+        // 🔄 Update driver (user-based) details
+        await UPDATEAPI({
+          url: `/update/${editId}`, // editId comes from set in handleEdit
+          payload: form,
+          header: { "Content-Type": "multipart/form-data" },
+        });
+
+      } else if (editRole === "vehicle") {
+        // Vehicle-specific fields
+        form.append("vehicleName", formData.vehicleName || "");
+        form.append("vehicleModel", formData.vehicleModel || "");
+        form.append("vehicleYear", formData.vehicleYear || "");
+        form.append("vehicleType", formData.vehicleType || "");
+        form.append("chassiNumber", formData.chassiNumber || "");
+        form.append("registrationNumber", formData.registrationNumber || "");
+        form.append("vehicleDescription", formData.vehicleDescription || "");
+        form.append("status", formData.status || "");
+
+        if (Array.isArray(formData.vehiclePhotos)) {
+          formData.vehiclePhotos.forEach((file: File) => {
+            form.append("vehiclePhotos", file);
+          });
+        }
+
+        // 🔄 Update vehicle
+        await UPDATEAPI({
+          url: `/vehicle/update/${editId}`,
+          payload: form,
+          header: { "Content-Type": "multipart/form-data" },
+        });
+
+      } else {
+        // 👤 Update basic user or manager
+        await UPDATEAPI({
+          url: `/update/${editId}`,
+          payload: form,
+          header: { "Content-Type": "multipart/form-data" },
+        });
+      }
+
+      ToasterService.showtoast({ message: "Details updated successfully", type: "success" });
+      await fetchedData(); // refresh data list
+      setOpen(false);
+      setEditRole("");
+      setFormData({});
+    } catch (err) {
+      console.error("Update failed", err);
+      ToasterService.showtoast({ message: "Update failed", type: "error" });
+    }
+  };
 
 
   // handle Delete
-  const handleDelete = async (r) => {
-    const res = await DELETE({ url: `/delete/${r._id}` });
-    if (res) {
-      ToasterService.showtoast({ message: 'Deleted Successfully!', type: "success" })
-    }
-    await fetchedData();
+  const handleDelete = (r) => {
+    setSelectedUserId(r._id);        // Store the selected user ID
+    setConfirmOpen(true);            // Open confirmation dialog
+
   };
+
+
+
+  const confirmDelete = async () => {
+    if (!selectedUserId) return;
+
+
+    try {
+      const res = await DELETE({ url: `/delete/${selectedUserId}` });
+      if (res) {
+        ToasterService.showtoast({ message: 'Deleted Successfully!', type: 'success' });
+        await fetchedData();
+      }
+    } catch (err) {
+      ToasterService.showtoast({ message: 'Deletion failed!', type: 'error' });
+    } finally {
+      setConfirmOpen(false);      // Close confirmation popup
+      setSelectedUserId(null);    // Clear user ID
+    }
+  };
+
+  const handleAssignVehicle = () => {
+    console.log("handleassign is working");
+    setModalContent('assignVehicle');
+    setOpen(true);
+  }
 
 
   type RoleType = "user" | "manager" | "driver" | "vehicle";
@@ -188,90 +312,71 @@ const Dashboard = () => {
           ? "vehicle"
           : "user";
 
-    const baseFields = {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      mobile: "",
-      dob: "",
-      profilePic: null,
-      role,
-    };
 
-    const roleFields = {
-      manager: {},
-      driver: {
-        licenseExpiry: "",
-        address: "",
-        experience: "",
-        licenseFile: null,
-      },
-      user: {},
-      vehicle: {}, // if any
-    };
+    setFormData({
+      ...(role !== 'user' ? { role } : {}),
+    });
 
-    if (role === "user") {
-      setVisibleFields(userFields);
-    } else if (role === "manager") {
-      setVisibleFields(managerFields);
-    } else if (role === "driver") {
-      setVisibleFields(driverFields);
-    }
-
-    setFormData({ ...baseFields, ...(roleFields[role] || {}) });
+    setModalContent('form');
     setModelTitle(`Add ${label}`);
     setEditId(null);
     setAddRole(role);
     setOpen(true);
   };
 
-  //update user
-  const updateUser = async () => {
+
+  const addDetails = async () => {
     try {
       const form = new FormData();
 
-      // Only append user/manager/driver fields if not vehicle
-      if (editRole !== "vehicle") {
-        form.append("firstName", (formData as UserForm | ManagerForm | DriverForm).firstName || "");
-        form.append("lastName", (formData as UserForm | ManagerForm | DriverForm).lastName || "");
-        form.append("email", (formData as UserForm | ManagerForm | DriverForm).email || "");
-        form.append("mobile", (formData as UserForm | ManagerForm | DriverForm).mobile || "");
-        if ((formData as UserForm | ManagerForm | DriverForm).dob)
-          form.append("dob", new Date((formData as UserForm | ManagerForm | DriverForm).dob as Date).toISOString());
-        form.append("role", (formData as UserForm | ManagerForm | DriverForm).role || "");
-
-        if ((formData as UserForm | ManagerForm | DriverForm).profilePic instanceof File) {
-          form.append("profilePic", (formData as UserForm | ManagerForm | DriverForm).profilePic as File);
+      // Append all fields to formData
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value instanceof File || value instanceof Blob) {
+          form.append(key, value);
+        } else if (Array.isArray(value)) {
+          value.forEach((v) => form.append(key, v)); // for vehiclePhotos (multiple files)
+        } else {
+          form.append(key, value as string);
         }
-
-        if (editRole == "driver") {
-          if ((formData as DriverForm).licenseExpiry) {
-            form.append("licenseExpiry", new Date((formData as DriverForm).licenseExpiry as Date).toISOString());
-          }
-          form.append("address", (formData as DriverForm).address || "");
-          form.append("experience", (formData as DriverForm).experience || "");
-          if ((formData as DriverForm).licenseFile instanceof File) {
-            form.append("drivingLicense", (formData as DriverForm).licenseFile as File);
-          }
-        }
-      }
-      // If you want to handle vehicle update, add logic here for VehicleForm fields
-
-      console.log("form data which send to backend : " + form.get);
-      await UPDATEAPI({
-        url: `/update/${editId}`,
-        payload: form,
-        header: { "Content-Type": "multipart/form-data" },
       });
 
-      await fetchedData();
+      // 🟢 If it's a vehicle
+      if (addRole === "vehicle") {
+        await POSTVEHICLE({
+          url: "/add",
+          payload: form,
+          header: { "Content-Type": "multipart/form-data" },
+        });
+
+        ToasterService.showtoast({ message: "Vehicle added successfully", type: "success" });
+
+      } else {
+        // 🟢 For user/driver/manager
+        if (!formData.role) {
+          form.append("role", "driver"); // default role
+        }
+
+        await POSTAPI({
+          url: "/register",
+          payload: form,
+          header: { "Content-Type": "multipart/form-data" },
+        });
+
+        ToasterService.showtoast({ message: "User added successfully", type: "success" });
+      }
+
       setOpen(false);
-      setEditRole("")
-    } catch (err) {
-      console.error("Update error:", err);
+      fetchedData?.(); // refresh list if available
+
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Failed to add entry";
+      ToasterService.showtoast({ message: msg, type: "error" });
     }
   };
+
+
+
+
 
   const rowActions = [
     { label: "Edit", color: "primary", onClick: (r) => handleEdit(r) },
@@ -335,9 +440,23 @@ const Dashboard = () => {
 
           {currentCardName === "Total Vehicles" && (
             <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-              <AppTable rowData={vehicles} rowActions={[]} headerColumn={vehicleColumns} title="Vehicle List" text="Add Vehicle" onAddClick={() => handleAdd("vehicle")} buttonColor="#388e3c" />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Button variant="contained" onClick={handleAssignVehicle} sx={{ bgcolor: "#388e3c" }}>
+                  Assign Vehicle
+                </Button>
+              </Box>
+
+              <AppTable
+                rowData={vehicles}
+                rowActions={rowActions}
+                onAddClick={() => handleAdd("vehicle")}
+                headerColumn={vehicleColumns}
+                text="Add Vehicle"
+                title="Vehicle List"
+              />
             </Paper>
           )}
+
         </Box>
       )}
 
@@ -345,8 +464,6 @@ const Dashboard = () => {
       {/* DRIVER VIEW */}
       {role === "driver" && (
         <Box p={3}>
-          <Typography variant="h4" gutterBottom>Driver Dashboard</Typography>
-
           {assignVehicle ? (
             <>
               <Paper elevation={3} sx={{ p: 3, maxWidth: 600 }}>
@@ -379,29 +496,52 @@ const Dashboard = () => {
       {/* MODAL */}
       <APPModal
         isOpen={open}
-        onOkClick={updateUser}
-        onClose={() => setOpen(false)}
+        onOkClick={editRole ? updateDetails : addDetails}
+        onClose={() => {
+          setOpen(false);
+          setFormData({});
+          setEditRole("");
+          setAddRole("");
+          setModalContent("form");
+        }}
         title={modalTitle}
       >
-        {["user", "manager", "driver"].includes(addRole || editRole) && visibleFields.length > 0 && (
+        {modalContent === "form" && (editRole || addRole) && (
           <AppForm
-            key={editId || modalTitle}
-            fields={visibleFields.map((field) => ({
-              ...field,
-              type: field.type ?? "text",
-            }))}
-            setValue={setFormData}
-            value={formData}
+            role={(editRole || addRole) as RoleType}
+            formData={formData}
+            setFormData={setFormData}
           />
         )}
 
-        {(addRole === "vehicle" || editRole === "vehicle") && (
-          <AddVehicle setValue={setFormData} value={formData} />
+        {modalContent === "assignVehicle" && (
+          <AssignVehicleForm
+            drivers={drivers}
+            vehicles={vehicles}
+            onSuccess={() => {
+              setOpen(false);
+              fetchedData();
+            }}
+          />
         )}
       </APPModal>
 
 
 
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this user?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)} color="primary">
+            No
+          </Button>
+          <Button onClick={confirmDelete} color="error">
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Outlet />
     </Box>

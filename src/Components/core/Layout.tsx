@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AppBar,
   Box,
@@ -10,18 +10,20 @@ import {
   MenuItem,
   IconButton,
 } from '@mui/material';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import StorageService from '../../Service/StorageService';
 import logo from '../../images/logo.png';
 import { GETBYID } from '../../Service/APIService';
+import AppButton from '../UI/AppButton';
 
 const drawerWidth = 240;
 
 const Layout: React.FC = () => {
   const [isLogin, setIsLogin] = useState(false);
   const [role, setRole] = useState('');
-  const [navButtons, setNavButtons] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   interface LoginUser {
     id?: string;
     profilePic?: string;
@@ -33,6 +35,10 @@ const Layout: React.FC = () => {
   const user = StorageService.getUser();
   const open = Boolean(anchorEl);
 
+  const location = useLocation();
+
+  const isMenuActive = ["/myprofile", "/changepassword"].includes(location.pathname);
+
   useEffect(() => {
     findUser();
     if (user) {
@@ -41,15 +47,15 @@ const Layout: React.FC = () => {
     }
   }, []);
 
-  const findUser= async()=>{
-    try{
-        const res = await GETBYID ({url: `/user/${user.id}`})
-        setLoginUser(res)
+  const findUser = useCallback(async () => {
+    try {
+      const res = await GETBYID({ url: `/user/${user.id}` })
+      setLoginUser(res)
     }
-    catch{
+    catch {
       console.log("GETBYID is not working");
     }
-  }
+  }, [loginUser])
 
 
   const handleLogout = () => {
@@ -59,13 +65,15 @@ const Layout: React.FC = () => {
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    setMenuOpen(true);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+    setMenuOpen(false);
   };
 
-  const handleLogo =()=>{
+  const handleLogo = () => {
     navigate("/dashboard")
   }
 
@@ -83,20 +91,65 @@ const Layout: React.FC = () => {
           <Box component="img" onClick={handleLogo} src={logo} alt="Logo" sx={{ height: 80, ml: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-    
+
+            {isMenuActive && (
+              <AppButton
+               onClick={()=>navigate("/dashboard")}
+               text='Dashboard'
+               variant='outlined'
+               color='inherit'/>
+            )}
+
+
+
             {/* Profile Avatar Dropdown */}
-            <IconButton onClick={handleAvatarClick} size="small" sx={{ ml: 1 }}>
-              <Avatar
-                alt="Profile"
-                src={loginUser.profilePic||''}
-                sx={{ width: 40, height: 40 }}
-              />
+            <IconButton onClick={handleAvatarClick} size="small" sx={{ ml: 1, p: 0 }}>
+              {menuOpen || isMenuActive ? (
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2, // Square with slight rounding
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: '#fff',
+                    boxShadow: '0 0 10px 3px rgba(0, 123, 255, 0.5)', // Strong blue shadow
+                    transition: 'box-shadow 0.3s ease-in-out',
+                  }}
+                >
+                  <Avatar
+                    alt="Profile"
+                    src={loginUser.profilePic || ''}
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      border: '2px solid #1976d2',
+                    }}
+                  >
+                    {loginUser?.firstName?.[0]?.toUpperCase() || 'U'}
+                  </Avatar>
+                </Box>
+              ) : (
+                <Avatar
+                  alt="Profile"
+                  src={loginUser.profilePic || ''}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                  }}
+                >
+                  {loginUser?.firstName?.[0]?.toUpperCase() || 'U'}
+                </Avatar>
+              )}
             </IconButton>
+
+
+
             <Menu
               anchorEl={anchorEl}
               open={open}
-              onClose={handleMenuClose}
-              onClick={handleMenuClose}
+              onClose={handleMenuClose} // ✅ only close when clicked outside
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
@@ -104,6 +157,7 @@ const Layout: React.FC = () => {
               <MenuItem onClick={() => handleMenuSelect('changepassword')}>Change Password</MenuItem>
               <MenuItem onClick={() => handleLogout()}> {isLogin ? 'Logout' : 'Login'}</MenuItem>
             </Menu>
+
           </Box>
         </Toolbar>
       </AppBar>
