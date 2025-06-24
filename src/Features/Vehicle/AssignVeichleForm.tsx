@@ -47,7 +47,7 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
 
     
     return (
-        <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: 2, maxWidth: 400 }}>
+        <Box sx={{ ml:10 ,p: 3, border: '1px solid #ccc', borderRadius: 2, maxWidth: 400 }}>
             <Typography variant="h6" gutterBottom>
                 Assign Vehicle to Driver
             </Typography>
