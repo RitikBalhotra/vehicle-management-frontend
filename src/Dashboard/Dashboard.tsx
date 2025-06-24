@@ -540,7 +540,7 @@ const Dashboard = () => {
           setModalContent("form");
         }}
         title={modalTitle}
-        size={'sm'}
+        size='sm'
       >
         {modalContent === "form" && (editRole || addRole) && (
           <AppForm
