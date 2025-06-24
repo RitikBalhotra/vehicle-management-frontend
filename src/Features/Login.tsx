@@ -4,6 +4,7 @@ import {
   Typography,
   Paper,
   Stack,
+  Grid,
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -46,10 +47,10 @@ const LoginPage = () => {
   // handle login 
   const handleLogin = async () => {
     const { email, password } = loginData;
-    if (!email || !password) return ToasterService.showtoast({message:"Email and Password are required!", type:"error"});
+    if (!email || !password) return ToasterService.showtoast({ message: "Email and Password are required!", type: "error" });
 
     try {
-      Spinnerservice.showSpinner(); 
+      Spinnerservice.showSpinner();
       const res = await LOGINAPI({ url: '/login', payload: loginData });
       StorageService.setToken(res.token);
       StorageService.setUser(res.user);
@@ -64,14 +65,14 @@ const LoginPage = () => {
   // handle forgot password 
   const handleForgotPassword = async () => {
     const { email } = forgotData;
-    if (!email) return ToasterService.showtoast({message:"email is required!", type:"info"});
+    if (!email) return ToasterService.showtoast({ message: "email is required!", type: "info" });
 
     try {
       Spinnerservice.showSpinner()
       const res = await FORGOTPASSWORD({ url: `/forgot-password`, payload: { email } })
       Spinnerservice.hideSpinner();
       console.log(res);
-      if (res) { ToasterService.showtoast({message:"Reset Password Sent on Email", type:"info"}) }
+      if (res) { ToasterService.showtoast({ message: "Reset Password Sent on Email", type: "info" }) }
     }
     catch {
       console.log("User NOt FOund");
@@ -90,7 +91,7 @@ const LoginPage = () => {
       Spinnerservice.hideSpinner();
       setMode("login");
     } catch (error: any) {
-     ToasterService.showtoast({message:`Registration failed : ${error}`, type:"error"})
+      ToasterService.showtoast({ message: `Registration failed : ${error}`, type: "error" })
     }
   };
 
@@ -99,7 +100,7 @@ const LoginPage = () => {
     { name: 'firstName', label: 'First Name' },
     { name: 'lastName', label: 'Last Name' },
     { name: 'email', label: 'Email' },
-    { name: 'mobile', label: 'Mobile' },
+    // { name: 'mobile', label: 'Mobile' },
     { name: 'password', label: 'Password', type: 'password' },
   ]
     : mode === 'login' ? [
@@ -131,15 +132,14 @@ const LoginPage = () => {
         <Typography variant="h3" fontWeight="bold" color="primary" mb={2}>
           Welcome
         </Typography>
-        <Typography variant="h6" color="text.secondary" mb={3}>
+        <Typography variant="h6" color="text.secondary" mb={0}>
           Vehicle Management System
         </Typography>
-        <Box
-          component="img"
-          src={backgroundImage}
-          alt="illustration"
-          sx={{ width: '100%', maxWidth: 400 }}
-        />
+        <Grid sx={{ display: { xs: 'none', sm: 'none', md: 'flex' } }} >
+          <Box component="img" src={backgroundImage}
+            alt="illustration"
+            sx={{ width: '100%', maxWidth: 400 }} />
+        </Grid>
       </Box>
 
       <Box
@@ -158,7 +158,7 @@ const LoginPage = () => {
             maxWidth: 450,
             p: 0,
             borderRadius: 3,
-            height: 550, // Fixed height for consistency
+            height: 'auto', // Fixed height for consistency
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -183,7 +183,7 @@ const LoginPage = () => {
               overflowY: 'auto',
             }}
           >
-            <Stack spacing={2} pb={2}>
+            <Stack spacing={2} pb={0}>
               {formFields.map((field) => (
                 <Box key={field.name}>
                   <Typography variant="body2" fontWeight={600} mb={0.5}>
@@ -275,7 +275,7 @@ const LoginPage = () => {
         </Paper>
 
       </Box>
-    </Box>
+    </Box >
   );
 };
 
