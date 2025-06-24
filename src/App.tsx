@@ -21,7 +21,6 @@ function App() {
         <Route path='changepassword' element={<ChangePassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Route>
-      <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
 
