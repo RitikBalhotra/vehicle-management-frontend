@@ -24,7 +24,7 @@ const Spinner: React.FC = () => {
                     alignItems: 'center',
                     backdropFilter: 'blur(1px)',
                     backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue
-                    zIndex: 2500,
+                    zIndex: 20000,
                     pointerEvents: 'all',
                     overflow: 'hidden',
                 }}
