@@ -49,14 +49,14 @@ const LoginPage = () => {
     if (!email || !password) return ToasterService.showtoast({message:"Email and Password are required!", type:"error"});
 
     try {
-      Spinnerservice.showSpinner();
+      Spinnerservice.showSpinner(); 
       const res = await LOGINAPI({ url: '/login', payload: loginData });
       StorageService.setToken(res.token);
       StorageService.setUser(res.user);
       ToasterService.showtoast({ message: 'Login Successfully', type: 'success' })
-      Spinnerservice.hideSpinner();
       navigate(`/dashboard`);
     } catch (err: any) {
+      Spinnerservice.hideSpinner();
       ToasterService.showtoast({ message: `${err.message}`, type: `error` })
     }
   };

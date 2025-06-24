@@ -74,8 +74,8 @@ const Dashboard = () => {
 
   //fetched data
   const fetchedData = useCallback(async () => {
-    Spinnerservice.showSpinner();
     try {
+      Spinnerservice.showSpinner();
       const userRes = await GETALLAPI({ url: "/list" });
       const vehicleRes = await GETALLVEHICLES({ url: "/vehiclelist" });
 
