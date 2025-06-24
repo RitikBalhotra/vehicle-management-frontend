@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
 } from "@mui/material";
@@ -25,8 +24,8 @@ import {
   UPDATEAPI,
 } from "../Service/APIService";
 import AppTable from "../Components/UI/Apptable";
-import type { Driver, DriverForm, Manager, ManagerForm, User, UserForm, Vehicle, VehicleForm, FieldConfig } from "../Components/types/types";
-import { cardData, driverFields, managerFields, userFields, } from "../Components/types/types";
+import type { Driver, DriverForm, Manager, ManagerForm, UserForm, Vehicle, VehicleForm,} from "../Components/types/types";
+import { cardData,} from "../Components/types/types";
 import APPModal from "../Components/UI/AppModal";
 import ToasterService from "../Service/ToastService";
 import {
@@ -181,7 +180,7 @@ const Dashboard = () => {
 
       console.log("📝 Edit Form Data (via API):", res);
     } catch (err) {
-      console.error("❌ Failed to fetch user by ID:", err);
+      console.error("Failed to fetch user by ID:", err);
     }
   }, []);
 
@@ -199,18 +198,22 @@ const Dashboard = () => {
       form.append("role", editRole); // role is important for backend logic
 
       // File handling
-      if (formData.profilePic instanceof File) {
+      if ("profilePic" in formData && formData.profilePic instanceof File) {
         form.append("profilePic", formData.profilePic);
       }
 
       // Driver-specific fields
       if (editRole === "driver") {
-        form.append("address", formData.address || "");
-        form.append("experience", formData.experience || "");
-        if (formData.licenseExpiry)
+        if ("address" in formData) {
+          form.append("address", formData.address || "");
+        }
+        if ("experience" in formData) {
+          form.append("experience", formData.experience || "");
+        }
+        if ("licenseExpiry" in formData && formData.licenseExpiry)
           form.append("licenseExpiry", new Date(formData.licenseExpiry).toISOString());
 
-        if (formData.licenseFile instanceof File) {
+        if ("licenseFile" in formData && formData.licenseFile instanceof File) {
           form.append("drivingLicense", formData.licenseFile);
         }
 
@@ -223,17 +226,18 @@ const Dashboard = () => {
 
       } else if (editRole === "vehicle") {
         // Vehicle-specific fields
-        form.append("vehicleName", formData.vehicleName || "");
-        form.append("vehicleModel", formData.vehicleModel || "");
-        form.append("vehicleYear", formData.vehicleYear || "");
-        form.append("vehicleType", formData.vehicleType || "");
-        form.append("chassiNumber", formData.chassiNumber || "");
-        form.append("registrationNumber", formData.registrationNumber || "");
-        form.append("vehicleDescription", formData.vehicleDescription || "");
-        form.append("status", formData.status || "");
+        const vehicleFormData = formData as VehicleForm;
+        form.append("vehicleName", vehicleFormData.vehicleName || "");
+        form.append("vehicleModel", vehicleFormData.vehicleModel || "");
+        form.append("vehicleYear", vehicleFormData.vehicleYear || "");
+        form.append("vehicleType", vehicleFormData.vehicleType || "");
+        form.append("chassiNumber", vehicleFormData.chassiNumber || "");
+        form.append("registrationNumber", vehicleFormData.registrationNumber || "");
+        form.append("vehicleDescription", vehicleFormData.vehicleDescription || "");
+        form.append("status", vehicleFormData.status || "");
 
-        if (Array.isArray(formData.vehiclePhotos)) {
-          formData.vehiclePhotos.forEach((file: File) => {
+        if (Array.isArray(vehicleFormData.vehiclePhotos)) {
+          vehicleFormData.vehiclePhotos.forEach((file: File) => {
             form.append("vehiclePhotos", file);
           });
         }
@@ -267,7 +271,7 @@ const Dashboard = () => {
 
 
   // handle Delete
-  const handleDelete = (r) => {
+  const handleDelete = (r: any) => {
     setSelectedUserId(r._id);        // Store the selected user ID
     setConfirmOpen(true);            // Open confirmation dialog
 
@@ -351,22 +355,21 @@ const Dashboard = () => {
         ToasterService.showtoast({ message: "Vehicle added successfully", type: "success" });
 
       } else {
-        // 🟢 For user/driver/manager
-        if (!formData.role) {
+        // For user/driver/manager
+        if (!("role" in formData) || !formData["role"]) {
           form.append("role", "driver"); // default role
         }
 
         await POSTAPI({
           url: "/register",
           payload: form,
-          header: { "Content-Type": "multipart/form-data" },
         });
 
         ToasterService.showtoast({ message: "User added successfully", type: "success" });
       }
 
       setOpen(false);
-      fetchedData?.(); // refresh list if available
+      fetchedData?.(); 
 
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Failed to add entry";
@@ -379,8 +382,8 @@ const Dashboard = () => {
 
 
   const rowActions = [
-    { label: "Edit", color: "primary", onClick: (r) => handleEdit(r) },
-    { label: "Delete", color: "error", onClick: (r) => handleDelete(r) },
+    { label: "Edit", color: "primary" as const, onClick: (r: any) => handleEdit(r) },
+    { label: "Delete", color: "error" as const, onClick: (r: any) => handleDelete(r) },
   ];
 
 
@@ -481,9 +484,38 @@ const Dashboard = () => {
               {assignVehicle.vehiclePhotos && (
                 <Box mt={4} sx={{ width: "100%", maxWidth: "1000px", mx: "auto", textAlign: "center" }}>
                   <Typography variant="h6" gutterBottom>Vehicle Image</Typography>
-                  <Box component="img" src={assignVehicle.vehiclePhotos} alt="Assigned Vehicle" sx={{
-                    width: "100%", maxHeight: 500, objectFit: "cover", borderRadius: 4, boxShadow: 3,
-                  }} />
+                  {Array.isArray(assignVehicle.vehiclePhotos)
+                    ? assignVehicle.vehiclePhotos.map((photo, idx) => (
+                        <Box
+                          key={idx}
+                          component="img"
+                          src={typeof photo === "string" ? photo : URL.createObjectURL(photo)}
+                          alt={`Assigned Vehicle ${idx + 1}`}
+                          sx={{
+                            width: "100%",
+                            maxHeight: 500,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                            boxShadow: 3,
+                            mb: 2,
+                          }}
+                        />
+                      ))
+                    : (
+                        <Box
+                          component="img"
+                          src={typeof assignVehicle.vehiclePhotos === "string" ? assignVehicle.vehiclePhotos : URL.createObjectURL(assignVehicle.vehiclePhotos)}
+                          alt="Assigned Vehicle"
+                          sx={{
+                            width: "100%",
+                            maxHeight: 500,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                            boxShadow: 3,
+                          }}
+                        />
+                      )
+                  }
                 </Box>
               )}
             </>

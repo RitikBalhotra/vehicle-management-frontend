@@ -35,7 +35,7 @@ interface AppTableProps {
   rowData: RowData[];
   headerColumn: Column[];
   title?: string;
-  rowActions?: RowAction[];
+  rowActions?: RowAction[] | undefined;
   text?: string;
   onAddClick?: () => void;
   buttonColor?: string;
@@ -103,19 +103,24 @@ const AppTable: React.FC<AppTableProps> = ({
             sx={{ minWidth: 200 }}
           />
           
-            <AppButton
-              onClick={onAddClick}
-              variant="contained"
-              buttonIcon={buttonIcon}
+            <Box
               sx={{
                 backgroundColor: buttonColor,
+                borderRadius: 1,
                 '&:hover': {
                   backgroundColor: buttonColor,
                   opacity: 0.85,
                 },
+                display: 'inline-block'
               }}
-              text={text ?? ""}
-            />
+            >
+              <AppButton
+                onClick={onAddClick ?? (() => {})}
+                variant="contained"
+                buttonIcon={buttonIcon}
+                text={text ?? ""}
+              />
+            </Box>
         </Box>
 
         {/* Table */}

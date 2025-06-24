@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 
 interface APPTextFieldProps {
   type?: string;
-  name?: string;
+  name?: string | number;
   value?: string | number;
   label?: string
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   placeholder?: string;
   isreq?: boolean;
+  fullWidth?: boolean;
   options?: string[];
 }
 
@@ -24,7 +25,7 @@ const APPTextField: React.FC<APPTextFieldProps> = ({ type, name, value, onChange
   };
   return (
     <TextField
-      name={name}
+      name={typeof name === 'number' ? String(name) : name}
       value={value}
       onChange={onChange}
       type={isPassword ? (showPassword ? 'text' : 'password') : type}

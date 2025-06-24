@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
 import { ASSIGNVEHICLE } from '../../Service/APIService';
-import type { Driver } from '../../Driver/types-d';
+import type { Driver } from '../../Components/types/types';
 import type { Vehicle } from './types-v';
 import StorageService from '../../Service/StorageService';
+import ToasterService from '../../Service/ToastService';
 
 type Props = {
     drivers: Driver[];
@@ -20,7 +21,7 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
 
     const handleAssign = async () => {
         if (!selectedDriver || !selectedVehicle) {
-            alert('Please select both driver and vehicle');
+            ToasterService.showtoast({message:"Kindly select both driver and vehicle", type:"info"})
             return;
         }
         
@@ -33,28 +34,18 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
                 assignedBy: currentUser.id,
             });
 
-            alert('Vehicle assigned successfully');
+            ToasterService.showtoast({message:"Vehicle assigned successfully", type:"success"})
             onSuccess();
         } catch (error) {
-            console.error('Assignment failed:', error);
-            alert('Failed to assign vehicle');
+            ToasterService.showtoast({message:"Failed to assigned vehicle ", type:"error"});
+
         } finally {
             setAssigning(false);
         }
     };
     console.log(drivers);
 
-    // const isPopulatedUser = (
-    //     user: unknown
-    // ): user is { firstName: string; lastName: string } => {
-    //     return (
-    //         typeof user === 'object' &&
-    //         user !== null &&
-    //         'firstName' in user &&
-    //         'lastName' in user
-    //     );
-    // };
-
+    
     return (
         <Box sx={{ p: 3, border: '1px solid #ccc', borderRadius: 2, maxWidth: 400 }}>
             <Typography variant="h6" gutterBottom>
@@ -72,9 +63,7 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
             >
                 {drivers.map((d) => (
                     <MenuItem key={d._id} value={d._id}>
-                        {/* {isPopulatedUser(d._id) */}
                             {d.firstName} {d.lastName}
-                            {/* // : String(d._id)} */}
                     </MenuItem>
                 ))}
             </TextField>
@@ -89,7 +78,7 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
                 sx={{ mb: 2 }}
             >
                 {vehicles.map((v) => (
-                    <MenuItem key={v._id} value={v._id}>
+                    <MenuItem key={v.id} value={v.id}>
                         {v.vehicleName} ({v.vehicleModel})
                     </MenuItem>
                 ))}

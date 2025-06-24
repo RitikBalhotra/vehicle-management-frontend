@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import LockResetIcon from '@mui/icons-material/LockReset';
-import bgImage from "../images/changePassword.png"; // 🔄 Replace with your actual image path
+import bgImage from "../images/changePassword.png"; 
 import APPTextField from "../Components/UI/AppTextField";
 import { CHANGEPASSWORD } from "../Service/APIService";
 import ToasterService from "../Service/ToastService";
@@ -44,7 +44,7 @@ const ChangePassword = () => {
   return (
     <Box sx={{ bgcolor: "#f0f2f5", minHeight: "100vh", py: 6 }}>
       <Grid container justifyContent="center">
-        <Grid item xs={11} md={8}>
+        <Grid size={{xs:11 ,md:8}}>
           <Paper
             elevation={4}
             sx={{

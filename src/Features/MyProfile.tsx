@@ -12,13 +12,12 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import StorageService from "../Service/StorageService";
 import EditIcon from "@mui/icons-material/Edit";
-import { ChangeEvent, useRef } from "react";
+import { useRef } from "react";
 import ToasterService from "../Service/ToastService";
 import { GETBYID, UPDATEAPI } from "../Service/APIService";
 import { driverFields, managerFields } from "../Components/types/types"
 import type { DriverForm, ManagerForm, } from "../Components/types/types";
 import { useNavigate } from "react-router-dom";
-import { BoltOutlined, SupervisorAccount } from "@mui/icons-material";
 
 
 
@@ -80,7 +79,7 @@ const MyProfile = () => {
             navigate("/");
         }
     }, [formData]);
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e:any) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -104,7 +103,7 @@ const MyProfile = () => {
 
     }
 
-    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
             setFormData(prev => ({

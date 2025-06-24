@@ -4,7 +4,6 @@ import {
   Box,
   CssBaseline,
   Toolbar,
-  Button,
   Avatar,
   Menu,
   MenuItem,
@@ -20,13 +19,13 @@ const drawerWidth = 240;
 
 const Layout: React.FC = () => {
   const [isLogin, setIsLogin] = useState(false);
-  const [role, setRole] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   interface LoginUser {
     id?: string;
     profilePic?: string;
+    firstName?: string;
     // add other properties as needed
   }
   const [loginUser, setLoginUser] = useState<LoginUser>({})
@@ -43,7 +42,6 @@ const Layout: React.FC = () => {
     findUser();
     if (user) {
       setIsLogin(true);
-      setRole(user.role);
     }
   }, []);
 
