@@ -1,7 +1,9 @@
 import axios from 'axios';
 import StorageService from '../Service/StorageService';
 
-const baseUrl = 'http://localhost:3020/api';
+// Make sure to define REACT_APP_API_URL in your .env file (e.g., REACT_APP_API_URL=http://localhost:5000)
+const baseUrl = import.meta.env.VITE_API_URL || '';
+
 
 interface ApiParams {
   url: string;
