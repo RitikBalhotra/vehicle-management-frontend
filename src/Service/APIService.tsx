@@ -196,6 +196,21 @@ export const POSTVEHICLE = async ({ url, payload = {}, header = {} }: ApiParams)
   }
 };
 
+// get single vehicle by id 
+export const GETSINGLEAPI = async ({ url }: { url: string }) => {
+  try {
+    const token = StorageService.getToken(); // get auth token
+    const res = await axios.get(`${baseUrl}${url}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (err: any) {
+    throw err?.response?.data || { message: "API Error" };
+  }
+};
+
 // Get All Vehicles
 export const GETALLVEHICLES = async ({ url, header = {} }: ApiParams) => {
   try {

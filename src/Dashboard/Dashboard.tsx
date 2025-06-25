@@ -19,13 +19,14 @@ import {
   GETALLVEHICLES,
   GETASSIGNEDVEHICLE,
   GETBYID,
+  GETSINGLEAPI,
   POSTAPI,
   POSTVEHICLE,
   UPDATEAPI,
 } from "../Service/APIService";
 import AppTable from "../Components/UI/Apptable";
-import type { Driver, DriverForm, Manager, ManagerForm, UserForm, Vehicle, VehicleForm,} from "../Components/types/types";
-import { cardData,} from "../Components/types/types";
+import type { Driver, DriverForm, Manager, ManagerForm, UserForm, Vehicle, VehicleForm, } from "../Components/types/types";
+import { cardData, } from "../Components/types/types";
 import APPModal from "../Components/UI/AppModal";
 import ToasterService from "../Service/ToastService";
 import {
@@ -117,7 +118,7 @@ const Dashboard = () => {
       const res = await GETASSIGNEDVEHICLE(user.id);
       if (res?.vehicle) setAssignVehicle(res.vehicle);
     } catch (err) {
-      ToasterService.showtoast({message:"vehicle fetching error", type:"error"})
+      ToasterService.showtoast({ message: "vehicle fetching error", type: "error" })
     }
   }, []);
 
@@ -143,6 +144,7 @@ const Dashboard = () => {
 
     try {
       const res = await GETBYID({ url: `/user/${row._id}` });
+      const vehicle = await GETSINGLEAPI({ url: `/getvehicle/${row._id}` });
 
       const role = Array.isArray(res.role) ? res.role[0] : res.role || "driver";
       setModalContent('form');
@@ -150,6 +152,12 @@ const Dashboard = () => {
       setEditRole(role);
       setOpen(true);
       setModelTitle(`Edit ${role.toUpperCase()}`);
+      if (vehicle) {
+        setModalContent('form');
+        setEditId(res._id);
+        setOpen(true);
+        setModelTitle(`Edit ${role.toUpperCase()}`);
+      }
 
       const baseForm = {
         firstName: res.firstName || "",
@@ -172,8 +180,8 @@ const Dashboard = () => {
         });
       } else if (role === "manager") {
         setFormData(baseForm);
-      } else if (role === "vehicle") {
-        setFormData(res);
+      } else if ("chassiNumber" in vehicle) {
+        setFormData(vehicle);
       } else {
         setFormData(baseForm);
       }
@@ -193,7 +201,7 @@ const Dashboard = () => {
       form.append("email", formData.email || "");
       form.append("mobile", formData.mobile || "");
       form.append("dob", formData.dob ? new Date(formData.dob).toISOString() : "");
-      form.append("role", editRole); 
+      form.append("role", editRole);
 
       if ("profilePic" in formData && formData.profilePic instanceof File) {
         form.append("profilePic", formData.profilePic);
@@ -214,7 +222,7 @@ const Dashboard = () => {
         }
 
         await UPDATEAPI({
-          url: `/update/${editId}`, 
+          url: `/update/${editId}`,
           payload: form,
           header: { "Content-Type": "multipart/form-data" },
         });
@@ -251,7 +259,7 @@ const Dashboard = () => {
       }
 
       ToasterService.showtoast({ message: "Details updated successfully", type: "success" });
-      await fetchedData(); 
+      await fetchedData();
       setOpen(false);
       setEditRole("");
       setFormData({});
@@ -264,8 +272,8 @@ const Dashboard = () => {
 
   // handle Delete
   const handleDelete = (r: any) => {
-    setSelectedUserId(r._id);        
-    setConfirmOpen(true);            
+    setSelectedUserId(r._id);
+    setConfirmOpen(true);
 
   };
 
@@ -284,8 +292,8 @@ const Dashboard = () => {
     } catch (err) {
       ToasterService.showtoast({ message: 'Deletion failed!', type: 'error' });
     } finally {
-      setConfirmOpen(false);    
-      setSelectedUserId(null);    
+      setConfirmOpen(false);
+      setSelectedUserId(null);
     }
   };
 
@@ -334,7 +342,7 @@ const Dashboard = () => {
         }
       });
 
-      
+
       if (addRole === "vehicle") {
         await POSTVEHICLE({
           url: "/add",
@@ -359,7 +367,7 @@ const Dashboard = () => {
       }
 
       setOpen(false);
-      fetchedData?.(); 
+      fetchedData?.();
 
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Failed to add entry";
@@ -476,35 +484,35 @@ const Dashboard = () => {
                   <Typography variant="h6" gutterBottom>Vehicle Image</Typography>
                   {Array.isArray(assignVehicle.vehiclePhotos)
                     ? assignVehicle.vehiclePhotos.map((photo, idx) => (
-                        <Box
-                          key={idx}
-                          component="img"
-                          src={typeof photo === "string" ? photo : URL.createObjectURL(photo)}
-                          alt={`Assigned Vehicle ${idx + 1}`}
-                          sx={{
-                            width: "100%",
-                            maxHeight: 500,
-                            objectFit: "cover",
-                            borderRadius: 4,
-                            boxShadow: 3,
-                            mb: 2,
-                          }}
-                        />
-                      ))
+                      <Box
+                        key={idx}
+                        component="img"
+                        src={typeof photo === "string" ? photo : URL.createObjectURL(photo)}
+                        alt={`Assigned Vehicle ${idx + 1}`}
+                        sx={{
+                          width: "100%",
+                          maxHeight: 500,
+                          objectFit: "cover",
+                          borderRadius: 4,
+                          boxShadow: 3,
+                          mb: 2,
+                        }}
+                      />
+                    ))
                     : (
-                        <Box
-                          component="img"
-                          src={typeof assignVehicle.vehiclePhotos === "string" ? assignVehicle.vehiclePhotos : URL.createObjectURL(assignVehicle.vehiclePhotos)}
-                          alt="Assigned Vehicle"
-                          sx={{
-                            width: "100%",
-                            maxHeight: 500,
-                            objectFit: "cover",
-                            borderRadius: 4,
-                            boxShadow: 3,
-                          }}
-                        />
-                      )
+                      <Box
+                        component="img"
+                        src={typeof assignVehicle.vehiclePhotos === "string" ? assignVehicle.vehiclePhotos : URL.createObjectURL(assignVehicle.vehiclePhotos)}
+                        alt="Assigned Vehicle"
+                        sx={{
+                          width: "100%",
+                          maxHeight: 500,
+                          objectFit: "cover",
+                          borderRadius: 4,
+                          boxShadow: 3,
+                        }}
+                      />
+                    )
                   }
                 </Box>
               )}
