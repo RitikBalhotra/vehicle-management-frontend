@@ -34,7 +34,6 @@ export const POSTAPI = async ({
   const response = await axios.post(`${baseUrl}${url}`, payload, {
     headers,
   });
-
   return response.data;
 };
 
@@ -50,6 +49,9 @@ export const LOGINAPI = async ({ url, payload = {}, header = {} }: ApiParams) =>
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || error.message);
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 };
 
@@ -70,6 +72,9 @@ export const GETALLAPI = async ({ url, header = {} }: ApiParams) => {
   } catch (error: any) {
     throw new Error(error.response?.data?.message || error.message);
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 
@@ -87,6 +92,9 @@ export const GETBYID = async ({ url }: ApiParams) => {
   } catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 // find by email
@@ -96,6 +104,9 @@ export const FINDBYEMAIL = async ({ url }: ApiParams) => {
     await axios.get(`${baseUrl}${url}`);
   } catch (err) {
     throw err;
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 };
 
@@ -110,6 +121,9 @@ export const FORGOTPASSWORD = async ({ url, payload }: ApiParams) => {
   catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 
@@ -122,6 +136,9 @@ export const RESET = async ({ url, payload }: ApiParams) => {
   }
   catch (error) {
     throw error;
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 }
 
@@ -139,6 +156,9 @@ export const DELETE = async ({ url }: ApiParams) => {
   } catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 //Change Password
@@ -154,6 +174,9 @@ export const CHANGEPASSWORD = async ({ url, payload }: ApiParams) => {
   }
   catch (error: any) {
     throw new Error(error.response?.data.message || error.message)
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 }
 
@@ -172,6 +195,9 @@ export const UPDATEAPI = async ({ url, payload = {}, header = {} }: ApiParams) =
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || error.message);
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 };
 
@@ -194,6 +220,9 @@ export const POSTVEHICLE = async ({ url, payload = {}, header = {} }: ApiParams)
   } catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 // get single vehicle by id 
@@ -208,6 +237,9 @@ export const GETSINGLEAPI = async ({ url }: { url: string }) => {
     return res.data;
   } catch (err: any) {
     throw err?.response?.data || { message: "API Error" };
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 };
 
@@ -225,6 +257,9 @@ export const GETALLVEHICLES = async ({ url, header = {} }: ApiParams) => {
   } catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 // get all drivers 
@@ -237,6 +272,9 @@ export const GETALLDRIVERS = async ({ url }: ApiParams) => {
     return response.data;
   } catch (error) {
     return { success: false, message: "Error fetching drivers" };
+  }
+  finally{
+    Spinnerservice.hideSpinner();
   }
 };
 
@@ -254,6 +292,9 @@ export const DELETEVEHICLE = async ({ url }: ApiParams) => {
   } catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 // Update Vehicle
@@ -270,6 +311,9 @@ export const UPDATEVEHICLE = async ({ url, payload = {}, header = {} }: ApiParam
   } catch (error) {
     throw error;
   }
+  finally{
+    Spinnerservice.hideSpinner();
+  }
 };
 
 // assign vehicle 
@@ -285,7 +329,6 @@ export const ASSIGNVEHICLE = async ({ driverId, vehicleId, assignedBy, }: { driv
   }, {
     withCredentials: true,
   });
-
   return response.data;
 };
 
@@ -295,7 +338,6 @@ export const GETASSIGNEDVEHICLE = async (userId: string) => {
   const response = await axios.get(`${baseUrl}/driver/assigned-vehicle/${userId}`, {
     withCredentials: true,
   });
-
   return response.data;
 };
 
