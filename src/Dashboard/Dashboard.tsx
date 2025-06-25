@@ -141,7 +141,7 @@ const Dashboard = () => {
   const handleEdit = useCallback(async (row: { _id: string; role?: string | string[] }) => {
     if (!row || !row._id) return;
 
-    console.log(row.role);
+    console.log("res inside role:"+ row?.role);
 
     try {
 
