@@ -43,7 +43,6 @@ const AssignVehicleForm = ({ drivers, vehicles, onSuccess }: Props) => {
             setAssigning(false);
         }
     };
-    console.log(drivers);
 
     
     return (

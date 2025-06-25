@@ -11,7 +11,6 @@ const AppToast = () => {
 
   useEffect(() => {
     ToasterService.register(({ message, type }: { message: string; type: string }) => {
-      console.log(message);
       if (
         type === 'success' ||
         type === 'error' ||

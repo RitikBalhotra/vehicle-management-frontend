@@ -14,6 +14,7 @@ import StorageService from '../../Service/StorageService';
 import logo from '../../images/logo.png';
 import { GETBYID } from '../../Service/APIService';
 import AppButton from '../UI/AppButton';
+import ToasterService from '../../Service/ToastService';
 
 const drawerWidth = 240;
 
@@ -51,7 +52,7 @@ const Layout: React.FC = () => {
       setLoginUser(res)
     }
     catch {
-      console.log("GETBYID is not working");
+      ToasterService.showtoast({message:"User not Found", type:'error'})
     }
   }, [loginUser])
 

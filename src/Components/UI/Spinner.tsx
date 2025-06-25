@@ -6,7 +6,6 @@ const Spinner: React.FC = () => {
     const [open, setOpen] = useState<boolean>(false);
     
     useEffect(() => {
-        console.log("spinner mounted");
         Spinnerservice.register((loading) => {
             setOpen(loading);
         });
@@ -25,7 +24,7 @@ const Spinner: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     backdropFilter: 'blur(1px)',
-                    backgroundColor: 'rgba(0, 0, 255, 0.3)', // semi-transparent blue
+                    backgroundColor: 'rgba(113, 126, 240, 0.3)', // semi-transparent blue
                     zIndex: 13000,
                     pointerEvents: 'all',
                     overflow: 'hidden',

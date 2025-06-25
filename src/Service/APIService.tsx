@@ -1,6 +1,7 @@
 import axios from 'axios';
 import StorageService from '../Service/StorageService';
 import Spinnerservice from './SpinnerService';
+import ToasterService from './ToastService';
 
 // Make sure to define REACT_APP_API_URL in your .env file (e.g., REACT_APP_API_URL=http://localhost:5000)
 const baseUrl = "https://vehicle-management-server-1-ly86.onrender.com/api"
@@ -41,13 +42,13 @@ export const POSTAPI = async ({
 // login 
 export const LOGINAPI = async ({ url, payload = {}, header = {} }: ApiParams) => {
   try {
+  Spinnerservice.showSpinner();
     const response = await axios.post(`${baseUrl}${url}`, payload, {
       headers: { ...header, 'Content-Type': 'application/json' },
       withCredentials: true,
     });
     return response.data;
   } catch (error: any) {
-    console.error('LOGINAPI Error:', error);
     throw new Error(error.response?.data?.message || error.message);
   }
 };
@@ -57,6 +58,7 @@ export const LOGINAPI = async ({ url, payload = {}, header = {} }: ApiParams) =>
 // get all users 
 export const GETALLAPI = async ({ url, header = {} }: ApiParams) => {
   try {
+  Spinnerservice.showSpinner();
     const response = await axios.get(`${baseUrl}${url}`, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -66,7 +68,6 @@ export const GETALLAPI = async ({ url, header = {} }: ApiParams) => {
     });
     return response.data;
   } catch (error: any) {
-    console.error('GETALLAPI Error:', error);
     throw new Error(error.response?.data?.message || error.message);
   }
 };
@@ -76,6 +77,7 @@ export const GETALLAPI = async ({ url, header = {} }: ApiParams) => {
 // Get by ID
 export const GETBYID = async ({ url }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.get(`${baseUrl}${url}`, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -83,7 +85,6 @@ export const GETBYID = async ({ url }: ApiParams) => {
     });
     return response.data;
   } catch (error) {
-    console.error('GET BY ID ERROR:', error);
     throw error;
   }
 };
@@ -91,10 +92,10 @@ export const GETBYID = async ({ url }: ApiParams) => {
 // find by email
 export const FINDBYEMAIL = async ({ url }: ApiParams) => {
   try {
-    const res = await axios.get(`${baseUrl}${url}`);
-    console.log(res.data.user);
+    Spinnerservice.showSpinner();
+    await axios.get(`${baseUrl}${url}`);
   } catch (err) {
-    console.error("User not found or error occurred", err);
+    throw err;
   }
 };
 
@@ -102,11 +103,11 @@ export const FINDBYEMAIL = async ({ url }: ApiParams) => {
 // forget password
 export const FORGOTPASSWORD = async ({ url, payload }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const res = await axios.post(`${baseUrl}${url}`, payload);
     return res.data;
   }
   catch (error) {
-    console.error('Forget Error:', error);
     throw error;
   }
 };
@@ -115,11 +116,11 @@ export const FORGOTPASSWORD = async ({ url, payload }: ApiParams) => {
 //Reset password
 export const RESET = async ({ url, payload }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const res = await axios.post(`${baseUrl}${url}`, payload);
     return res.data;
   }
   catch (error) {
-    console.error('Reset error', error);
     throw error;
   }
 }
@@ -128,6 +129,7 @@ export const RESET = async ({ url, payload }: ApiParams) => {
 // Delete User
 export const DELETE = async ({ url }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.delete(`${baseUrl}${url}`, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -135,7 +137,6 @@ export const DELETE = async ({ url }: ApiParams) => {
     });
     return response.data;
   } catch (error) {
-    console.error('DELETE ERROR:', error);
     throw error;
   }
 };
@@ -143,6 +144,7 @@ export const DELETE = async ({ url }: ApiParams) => {
 //Change Password
 export const CHANGEPASSWORD = async ({ url, payload }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.put(`${baseUrl}${url}`, payload, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`
@@ -159,6 +161,7 @@ export const CHANGEPASSWORD = async ({ url, payload }: ApiParams) => {
 // Update API
 export const UPDATEAPI = async ({ url, payload = {}, header = {} }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.put(`${baseUrl}${url}`, payload, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -168,7 +171,6 @@ export const UPDATEAPI = async ({ url, payload = {}, header = {} }: ApiParams) =
     });
     return response.data;
   } catch (error: any) {
-    console.error('EDITAPI Error:', error);
     throw new Error(error.response?.data?.message || error.message);
   }
 };
@@ -181,6 +183,7 @@ export const UPDATEAPI = async ({ url, payload = {}, header = {} }: ApiParams) =
 // Add Vehicle
 export const POSTVEHICLE = async ({ url, payload = {}, header = {} }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.post(`${baseUrl}${url}`, payload, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -189,7 +192,6 @@ export const POSTVEHICLE = async ({ url, payload = {}, header = {} }: ApiParams)
     });
     return response.data;
   } catch (error) {
-    console.error('POST VEHICLE ERROR:', error);
     throw error;
   }
 };
@@ -197,6 +199,7 @@ export const POSTVEHICLE = async ({ url, payload = {}, header = {} }: ApiParams)
 // Get All Vehicles
 export const GETALLVEHICLES = async ({ url, header = {} }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.get(`${baseUrl}${url}`, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -205,7 +208,6 @@ export const GETALLVEHICLES = async ({ url, header = {} }: ApiParams) => {
     });
     return response.data;
   } catch (error) {
-    console.error('GET ALL VEHICLES ERROR:', error);
     throw error;
   }
 };
@@ -213,12 +215,12 @@ export const GETALLVEHICLES = async ({ url, header = {} }: ApiParams) => {
 // get all drivers 
 export const GETALLDRIVERS = async ({ url }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.get(`${baseUrl}${url}`, {
       withCredentials: true,
     });
     return response.data;
   } catch (error) {
-    console.error("❌ Failed to fetch drivers:", error);
     return { success: false, message: "Error fetching drivers" };
   }
 };
@@ -227,6 +229,7 @@ export const GETALLDRIVERS = async ({ url }: ApiParams) => {
 // Delete Vehicle
 export const DELETEVEHICLE = async ({ url }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.delete(`${baseUrl}${url}`, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -234,7 +237,6 @@ export const DELETEVEHICLE = async ({ url }: ApiParams) => {
     });
     return response.data;
   } catch (error) {
-    console.error('DELETE VEHICLE ERROR:', error);
     throw error;
   }
 };
@@ -242,6 +244,7 @@ export const DELETEVEHICLE = async ({ url }: ApiParams) => {
 // Update Vehicle
 export const UPDATEVEHICLE = async ({ url, payload = {}, header = {} }: ApiParams) => {
   try {
+    Spinnerservice.showSpinner();
     const response = await axios.put(`${baseUrl}${url}`, payload, {
       headers: {
         Authorization: `Bearer ${StorageService.getToken()}`,
@@ -250,20 +253,17 @@ export const UPDATEVEHICLE = async ({ url, payload = {}, header = {} }: ApiParam
     });
     return response.data;
   } catch (error) {
-    console.error('UPDATE VEHICLE ERROR:', error);
     throw error;
   }
 };
 
 // assign vehicle 
 export const ASSIGNVEHICLE = async ({ driverId, vehicleId, assignedBy, }: { driverId: string; vehicleId: string; assignedBy: string; }) => {
-  console.log("driverid :" + driverId);
-  console.log("vehicleid: " + vehicleId);
-  console.log("assigned by: " + assignedBy);
   if (!driverId || !vehicleId || !assignedBy) {
-    console.log("Missing required fields");
+    ToasterService.showtoast({message:"Missing required Fields", type:"info"})
   }
 
+  Spinnerservice.showSpinner();
   const response = await axios.put(`${baseUrl}/assign-vehicle/${driverId}`, {
     vehicleId,
     assignedBy,
@@ -276,6 +276,7 @@ export const ASSIGNVEHICLE = async ({ driverId, vehicleId, assignedBy, }: { driv
 
 // get assign vehcile for driver 
 export const GETASSIGNEDVEHICLE = async (userId: string) => {
+  Spinnerservice.showSpinner();
   const response = await axios.get(`${baseUrl}/driver/assigned-vehicle/${userId}`, {
     withCredentials: true,
   });

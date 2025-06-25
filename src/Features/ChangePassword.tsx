@@ -37,7 +37,6 @@ const ChangePassword = () => {
     }
     catch (error) {
       ToasterService.showtoast({ message: `${error}`, type: "error" })
-      console.log("not update password error: " + error);
     }
   };
 

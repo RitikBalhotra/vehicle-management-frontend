@@ -93,11 +93,9 @@ const MyProfile = () => {
             await UPDATEAPI({ url: `/update/${id}`, payload: formData, header: { "Content-Type": "multipart/form-data" } })
             fetchUser();
             setId("");
-            console.log("update");
             ToasterService.showtoast({ message: "update infomation successfullly!", type: "success" })
         }
         catch (err) {
-            console.log("update error: " + err);
             ToasterService.showtoast({ message: `${err}`, type: "error" })
         }
 

@@ -71,11 +71,11 @@ const LoginPage = () => {
       Spinnerservice.showSpinner()
       const res = await FORGOTPASSWORD({ url: `/forgot-password`, payload: { email } })
       Spinnerservice.hideSpinner();
-      console.log(res);
       if (res) { ToasterService.showtoast({ message: "Reset Password Sent on Email", type: "info" }) }
     }
     catch {
-      console.log("User NOt FOund");
+      console.error("User NOt Found");
+      ToasterService.showtoast({message:"User not found!", type:"error"})
     }
   }
 

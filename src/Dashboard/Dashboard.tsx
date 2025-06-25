@@ -75,7 +75,6 @@ const Dashboard = () => {
   //fetched data
   const fetchedData = useCallback(async () => {
     try {
-      Spinnerservice.showSpinner();
       const userRes = await GETALLAPI({ url: "/list" });
       const vehicleRes = await GETALLVEHICLES({ url: "/vehiclelist" });
 
@@ -89,13 +88,11 @@ const Dashboard = () => {
       if (Array.isArray(vehicleRes.data)) {
         setVehicles(vehicleRes.data);
       } else {
-        console.warn("Vehicle data not an array:", vehicleRes);
+        console.warn("Internal error")
       }
 
     } catch (err) {
-      console.error("Fetching data error:", err);
-    }finally{
-      Spinnerservice.hideSpinner();
+      console.error("Fetching data error");
     }
   }, []);
 
@@ -119,9 +116,8 @@ const Dashboard = () => {
     try {
       const res = await GETASSIGNEDVEHICLE(user.id);
       if (res?.vehicle) setAssignVehicle(res.vehicle);
-      console.log(res);
     } catch (err) {
-      console.error("Assigned vehicle fetch failed:", err);
+      ToasterService.showtoast({message:"vehicle fetching error", type:"error"})
     }
   }, []);
 
@@ -182,7 +178,6 @@ const Dashboard = () => {
         setFormData(baseForm);
       }
 
-      console.log("📝 Edit Form Data (via API):", res);
     } catch (err) {
       console.error("Failed to fetch user by ID:", err);
     }
@@ -193,20 +188,17 @@ const Dashboard = () => {
     try {
       const form = new FormData();
 
-      // Common user fields
       form.append("firstName", formData.firstName || "");
       form.append("lastName", formData.lastName || "");
       form.append("email", formData.email || "");
       form.append("mobile", formData.mobile || "");
       form.append("dob", formData.dob ? new Date(formData.dob).toISOString() : "");
-      form.append("role", editRole); // role is important for backend logic
+      form.append("role", editRole); 
 
-      // File handling
       if ("profilePic" in formData && formData.profilePic instanceof File) {
         form.append("profilePic", formData.profilePic);
       }
 
-      // Driver-specific fields
       if (editRole === "driver") {
         if ("address" in formData) {
           form.append("address", formData.address || "");
@@ -221,15 +213,13 @@ const Dashboard = () => {
           form.append("drivingLicense", formData.licenseFile);
         }
 
-        // 🔄 Update driver (user-based) details
         await UPDATEAPI({
-          url: `/update/${editId}`, // editId comes from set in handleEdit
+          url: `/update/${editId}`, 
           payload: form,
           header: { "Content-Type": "multipart/form-data" },
         });
 
       } else if (editRole === "vehicle") {
-        // Vehicle-specific fields
         const vehicleFormData = formData as VehicleForm;
         form.append("vehicleName", vehicleFormData.vehicleName || "");
         form.append("vehicleModel", vehicleFormData.vehicleModel || "");
@@ -246,7 +236,6 @@ const Dashboard = () => {
           });
         }
 
-        // 🔄 Update vehicle
         await UPDATEAPI({
           url: `/vehicle/update/${editId}`,
           payload: form,
@@ -254,7 +243,6 @@ const Dashboard = () => {
         });
 
       } else {
-        // 👤 Update basic user or manager
         await UPDATEAPI({
           url: `/update/${editId}`,
           payload: form,
@@ -263,7 +251,7 @@ const Dashboard = () => {
       }
 
       ToasterService.showtoast({ message: "Details updated successfully", type: "success" });
-      await fetchedData(); // refresh data list
+      await fetchedData(); 
       setOpen(false);
       setEditRole("");
       setFormData({});
@@ -296,13 +284,12 @@ const Dashboard = () => {
     } catch (err) {
       ToasterService.showtoast({ message: 'Deletion failed!', type: 'error' });
     } finally {
-      setConfirmOpen(false);      // Close confirmation popup
-      setSelectedUserId(null);    // Clear user ID
+      setConfirmOpen(false);    
+      setSelectedUserId(null);    
     }
   };
 
   const handleAssignVehicle = () => {
-    console.log("handleassign is working");
     setModalContent('assignVehicle');
     setOpen(true);
   }
