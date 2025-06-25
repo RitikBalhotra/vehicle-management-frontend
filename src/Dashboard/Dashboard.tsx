@@ -159,6 +159,7 @@ const Dashboard = () => {
         // Case: This is a vehicle
         res = await GETSINGLEAPI({ url: `/getvehicle/${row._id}` });
         role = "vehicle";
+        setEditRole(role);
         setModalContent('form');
         setEditId(res._id);
         setOpen(true);
