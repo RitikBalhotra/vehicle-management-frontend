@@ -138,26 +138,34 @@ const Dashboard = () => {
   }, [visibleCards.length]);
 
   // handle Edit
-  const handleEdit = useCallback(async (row: { _id: string }) => {
+  const handleEdit = useCallback(async (row: { _id: string; role?: string | string[] }) => {
     if (!row || !row._id) return;
 
 
     try {
-      const res = await GETBYID({ url: `/user/${row._id}` });
-      const vehicle = await GETSINGLEAPI({ url: `/getvehicle/${row._id}` });
 
-      const role = Array.isArray(res.role) ? res.role[0] : res.role || "driver";
-      setModalContent('form');
-      setEditId(res._id);
-      setEditRole(role);
-      setOpen(true);
-      setModelTitle(`Edit ${role.toUpperCase()}`);
-      if (vehicle) {
+      let res;
+      let role = "driver"; // default role
+
+      if (row?.role) {
+        // Case: This is a user
+        res = await GETBYID({ url: `/user/${row._id}` });
+        role = Array.isArray(res.role) ? res.role[0] : res.role || "driver";
+        setEditId(res._id);
+        setEditRole(role);
+        setModalContent("form");
+        setOpen(true);
+        setModelTitle(`Edit ${role.toUpperCase()}`);
+      } else {
+        // Case: This is a vehicle
+        res = await GETSINGLEAPI({ url: `/getvehicle/${row._id}` });
+        role = "vehicle";
         setModalContent('form');
         setEditId(res._id);
         setOpen(true);
         setModelTitle(`Edit ${role.toUpperCase()}`);
       }
+
 
       const baseForm = {
         firstName: res.firstName || "",
@@ -180,8 +188,8 @@ const Dashboard = () => {
         });
       } else if (role === "manager") {
         setFormData(baseForm);
-      } else if ("chassiNumber" in vehicle) {
-        setFormData(vehicle);
+      } else if ("chassiNumber" in res) {
+        setFormData(res);
       } else {
         setFormData(baseForm);
       }
