@@ -254,7 +254,7 @@ const Dashboard = () => {
 
         await UPDATEAPI({
           url: `/vehicle/update/${editId}`,
-          payload: form,
+          payload: vehicleFormData,
           header: { "Content-Type": "multipart/form-data" },
         });
 
