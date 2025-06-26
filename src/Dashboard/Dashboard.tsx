@@ -161,6 +161,7 @@ const Dashboard = () => {
         role = "vehicle";
         setEditRole(role);
         setModalContent('form');
+        console.log(res._id);
         setEditId(res._id);
         setOpen(true);
         setModelTitle(`Edit ${role.toUpperCase()}`);
