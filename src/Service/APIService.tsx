@@ -4,7 +4,7 @@ import Spinnerservice from './SpinnerService';
 import ToasterService from './ToastService';
 
 // Make sure to define REACT_APP_API_URL in your .env file (e.g., REACT_APP_API_URL=http://localhost:5000)
-const baseUrl = "https://vehicle-management-server-1-ly86.onrender.com"
+const baseUrl = "https://vehicle-management-server-1-ly86.onrender.com/api"
 
 
 interface ApiParams {
